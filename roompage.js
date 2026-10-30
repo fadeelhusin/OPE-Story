@@ -115,9 +115,10 @@
   };
 
   function waText(k, note) {
-    var d = ROOMS[k] || {}, r = REG[k], L = [];
+    var d = ROOMS[k] || {}, r = REG[k], g = window.Grid && Grid.ofRoom(k), L = [];
     L.push('#OPE ' + k + ' | ' + ((r && r.ifc.n) || d.name || ''));
-    L.push('Level ' + (d.baseLevel || '') + ' · Part ' + partOf(k));
+    L.push('Level ' + (d.baseLevel || '') + ' · Part ' + partOf(k) + (g ? ' · Grid ' + g.text : ''));
+    if (r && r.sc) L.push('Sub-contractor: ' + r.sc);
     if (note) { L.push(''); L.push(note); }
     return L.join('\n');
   }
