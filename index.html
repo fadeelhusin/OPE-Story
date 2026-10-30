@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2a241d">
+<link rel="apple-touch-icon" href="icon.png">
+<title>JOH Room Storyboard</title>
+<link rel="stylesheet" href="styles.css">
+<script src="vendor/pdf.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand"><h1>JOH Site</h1><button id="gear" class="gear" onclick="location.hash='#/settings'" aria-label="Settings">⚙</button></div>
+  <div id="searchbar">
+    <input id="q" type="search" placeholder="Room no. or name…" autocomplete="off">
+    <select id="fl"><option value="">Level</option></select>
+    <select id="fa"><option value="">Type</option></select>
+  </div>
+</header>
+<main id="app"><div class="emptystate">Loading room data…</div></main>
+<div id="doc"></div>
+
+
+<script>
+var pdfjsLib = window.pdfjsLib;
+if (window.pdfjsLib) { pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js'; }
+</script>
+<script src="data.js"></script>
+<script src="grids.js"></script>
+<script src="grid.js"></script>
+<script src="locations.js"></script>
+<script src="viewer.js"></script>
+<script src="vendor/qrcode.min.js"></script>
+<script src="geo.js"></script>
+<script src="finishes.js"></script>
+<script src="site.js"></script>
+<script src="refs.js"></script>
+<script src="rfi.js"></script>
+<script src="app.js"></script>
+<script src="sitecam.js"></script>
+<script src="register.js"></script>
+<script src="roompage.js"></script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){var had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js').then(function(r){r.update();}).catch(function(){});navigator.serviceWorker.addEventListener('controllerchange',function(){if(had&&!window._rl){window._rl=1;location.reload();}});});}</script>
+</body>
+</html>

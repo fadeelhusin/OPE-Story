@@ -1,0 +1,24 @@
+{
+  "name": "JOH Room Storyboard",
+  "short_name": "Storyboard",
+  "description": "Offline interior design storyboard — room information, finishing schedules, material mockups & FF&E for Jeddah Opera House",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#2a241d",
+  "theme_color": "#2a241d",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
