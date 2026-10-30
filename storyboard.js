@@ -13,6 +13,7 @@
   /* progress source: cloud (Claude version) or this device */
   function prog(k) {
     if (window.Cloud && Cloud.prog) { var p = Cloud.prog(k); if (p) return p; }
+    if (window.RoomStatus && RoomStatus.prog(k)) return RoomStatus.prog(k);
     try { return (JSON.parse(localStorage.getItem('ope_prog') || '{}'))[k] || {}; } catch (x) { return {}; }
   }
   function sdFor(r, re) { return r.sd.filter(function (s) { return re.test(s.t); }); }

@@ -26,11 +26,12 @@
       var v = getProg(k, part);
       h += '<div class="rp-prog"><div class="rp-prog-h"><span>Site progress</span><b id="pg-' + part + '">' + v + '%</b></div>' +
         '<input type="range" min="0" max="100" step="5" value="' + v + '" style="--p:' + v + '%" oninput="RoomPage.setProg(\'' + esc(k) + '\',\'' + part + '\',this)"></div>';
+      if (window.RoomStatus && !window.Cloud) h += RoomStatus.block(k, part);
     }
     return h + '</div>';
   }
   function progAll() { try { return JSON.parse(localStorage.getItem('ope_prog') || '{}'); } catch (x) { return {}; } }
-  function getProg(k, part) { if (window.Cloud && Cloud.prog && Cloud.prog(k)) return Cloud.prog(k)[part] || 0; var a = progAll(); return (a[k] && a[k][part]) || 0; }
+  function getProg(k, part) { if (window.Cloud && Cloud.prog && Cloud.prog(k)) return Cloud.prog(k)[part] || 0; if (window.RoomStatus && RoomStatus.prog(k) && RoomStatus.prog(k)[part] != null) return RoomStatus.prog(k)[part]; var a = progAll(); return (a[k] && a[k][part]) || 0; }
   function partOf(k) { var p = k.charAt(0); return p === '4' ? '004' : p === '5' ? '005' : ROOMS[k] && ROOMS[k].zone || ''; }
 
   /* ---------- routing: plans only ---------- */
@@ -103,16 +104,12 @@
 
     /* Site Note (popup) + room photos */
     h += '<div class="card rp-wa"><button class="btn brass sc-big" onclick="RoomPage.openNote(\'' + esc(k) + '\')">📝 Site Note</button></div>';
-    if (!window.Cloud) h += '<h2 class="sec">Room photos</h2><div class="card rp-ph" id="rp-photos">' +
-      '<div class="rp-ph-btns"><label class="btn ghost">📷 Camera<input id="ph-cam" type="file" accept="image/*" capture="environment" hidden></label>' +
-      '<label class="btn ghost">🖼 Gallery<input id="ph-gal" type="file" accept="image/*" multiple hidden></label></div>' +
-      '<div id="ph-msg" class="small"></div><div id="ph-list" class="rp-ph-list"></div></div>';
     h += '<button class="btn ghost rp-status" onclick="location.hash=\'#/story/' + esc(k) + '\'">📊 Status – room storyboard</button>' +
       '<button class="btn ghost rp-status" style="margin-top:-14px" onclick="askClaude(\'' + esc(k) + '\')">Ask in the project chat</button>';
     app.innerHTML = h;
     if (d.pos) Viewer.openRoom(k, 'pv');
     SNAP = null; ADDED = [];
-    if (window.Photos && document.getElementById('rp-photos')) Photos.mount(k);
+    if (window.RoomStatus && !window.Cloud) RoomStatus.mount(k);
     try { localStorage.setItem('joh_cur_room', JSON.stringify({ id: k, t: Date.now() })); } catch (x) {}
     if (window.Cloud && Cloud.onRoom) Cloud.onRoom(k);
   };
@@ -126,7 +123,7 @@
       var cd = function (p) { return (r.fx[p] || []).map(function (i) { return LIB[i] ? LIB[i].code : i; }).join(', ') || '–'; };
       L.push('Walls: ' + cd('w') + ' | Floor: ' + cd('f') + ' | Ceiling: ' + cd('c'));
       r.dr.forEach(function (x) { L.push('Door ' + x.tag + ': ' + [x.type, x.fire, x.ac, x.size].filter(Boolean).join(' · ')); });
-      var pa = (window.Cloud && Cloud.prog && Cloud.prog(k)) || progAll()[k];
+      var pa = (window.Cloud && Cloud.prog && Cloud.prog(k)) || (window.RoomStatus && RoomStatus.prog(k)) || progAll()[k];
       if (pa) L.push('Site progress: Walls ' + (pa.w || 0) + '% | Floor ' + (pa.f || 0) + '% | Ceiling ' + (pa.c || 0) + '%');
       var open = r.sd.filter(function (s) { return /^[EGD]/.test(s.c); });
       if (open.length) L.push('Open SDs: ' + open.map(function (s) { return s.no + ' (' + s.c + ')'; }).join(', '));
@@ -164,6 +161,7 @@
       try { localStorage.setItem('ope_prog', JSON.stringify(a)); } catch (x) {}
       el.style.setProperty('--p', el.value + '%'); var b = document.getElementById('pg-' + part); if (b) b.textContent = el.value + '%';
       if (window.Cloud && Cloud.saveProg) Cloud.saveProg(k, part, +el.value);
+      else if (window.RoomStatus) RoomStatus.saveProg(k, part, +el.value);
     },
     snap: function (k) {
       SNAP = null;
