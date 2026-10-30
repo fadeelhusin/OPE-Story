@@ -9,7 +9,7 @@
   function lnk(t, u) { return u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(t) + '</a>' : esc(t); }
   var LIB = window.FINISH_LIB || {};
   function finBlock(label, ifc, ids, k, part) {
-    var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span><span class="small">IFC: ' + esc(ifc || '–') + '</span></div>';
+    var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span>' + (ifc ? '<span class="small">' + esc(ifc) + '</span>' : '') + '</div>';
     (ids || []).forEach(function (id) {
       var f = LIB[id]; if (!f) return;
       h += '<div class="rp-sys"><div class="rp-sys-t"><b>' + esc(f.code) + '</b> ' + esc(f.t) + '</div>';
