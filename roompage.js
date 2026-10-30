@@ -40,6 +40,7 @@
     window.scrollTo(0, 0);
     if (window.showSearch) showSearch(false);
     if (parts[0] === 'room' && parts[1]) return openRoom(parts[1]);
+    if (parts[0] === 'story' && parts[1] && window.Storyboard) return Storyboard.open(parts[1]);
     var lv = parts[0] === 'plan' && parts[1] ? parts[1] : lastLvl();
     try { localStorage.setItem('joh_last_level', lv); } catch (x) {}
     openPlanBrowse(lv);
@@ -65,7 +66,7 @@
     var h = '<div class="rtop"><button class="btn ghost" onclick="location.hash=\'#/plan/' + esc(d.baseLevel) + '\'">←</button>' +
       '<div class="rhead"><div class="rn">' + esc(k) + '</div><div class="rt">' + esc((r && r.ifc.n) || d.name || '') + '</div>' +
       '<div class="small">Level ' + esc(d.baseLevel) + ' · Part ' + esc(partOf(k)) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + '</div></div>' +
-      '<button class="btn brass rp-stbtn" onclick="askClaude(\'' + esc(k) + '\')">Status</button></div>';
+      '<button class="btn brass rp-stbtn" onclick="location.hash=\'#/story/' + esc(k) + '\'">Status</button></div>';
     h += '<div class="hero small-hero rp-plan">';
     if (d.pos) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(d.baseLevel) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
@@ -109,7 +110,8 @@
       '<div id="wa-thumbs" class="rp-thumbs"></div>' +
       '<button class="btn brass sc-big" onclick="RoomPage.sendWA(\'' + esc(k) + '\')">Send</button>' +
       '<div id="wa-msg" class="small"></div></div>';
-    h += '<button class="btn ghost rp-status" onclick="askClaude(\'' + esc(k) + '\')">📊 Status – room storyboard</button>';
+    h += '<button class="btn ghost rp-status" onclick="location.hash=\'#/story/' + esc(k) + '\'">📊 Status – room storyboard</button>' +
+      '<button class="btn ghost rp-status" style="margin-top:-14px" onclick="askClaude(\'' + esc(k) + '\')">Ask in the project chat</button>';
     app.innerHTML = h;
     if (d.pos) Viewer.openRoom(k, 'pv');
     SNAP = null; ADDED = [];
@@ -163,6 +165,7 @@
   function msg(t) { var e = document.getElementById('wa-msg'); if (e) e.textContent = t; }
 
   window.RoomPage = {
+    labelled: function (k) { return labelled(k); },
     setProg: function (k, part, el) {
       var a = progAll(); a[k] = a[k] || {}; a[k][part] = +el.value; a[k].t = Date.now();
       try { localStorage.setItem('ope_prog', JSON.stringify(a)); } catch (x) {}
