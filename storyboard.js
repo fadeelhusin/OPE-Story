@@ -25,12 +25,12 @@
     var best = sds.filter(function (s) { return /^[ABC]/.test(s.c); }).length ? 'SD approved' : sds.length ? 'SD under review / resubmit' : 'No SD found';
     var mOk = mts.length && mts.every(function (m) { return /^Approved/.test(m.s); });
     var act = [];
-    if (gap) act.push('Raise RFI – finish not tagged on SD / IFC drawings');
+    if (gap) act.push('Raise RFI – finish not on drawings or Room Finishes Schedule');
     if (!sds.length) act.push('Submit shop drawing');
     sds.forEach(function (s) { if (/^[EGD]/.test(s.c)) act.push('Resubmit ' + s.no + ' (' + s.c + ')'); });
     mts.forEach(function (m) { if (!/^Approved/.test(m.s)) act.push('Get ' + m.c + ' approved'); });
     if (v < 100) act.push(v ? 'Site ' + v + '% – complete' : 'Not started on site');
-    return { html: '<tr><th scope="row">' + label + '</th><td><b>' + esc(codes.join(', ') || '–') + '</b><div class="sbs">' + (gap ? '<span class="sbact">Not tagged on drawings</span>' : esc((r.ifc[part] || '').slice(0, 110))) + '</div></td>' +
+    return { html: '<tr><th scope="row">' + label + '</th><td><b>' + esc(codes.join(', ') || '–') + '</b><div class="sbs">' + (gap ? '<span class="sbact">Not on drawings or schedule</span>' : esc((r.ifc[part] || '').slice(0, 110))) + '</div></td>' +
       '<td>' + (sds.length ? sds.slice(0, 4).map(function (s) { return lnk(s.no, s.u) + ' ' + chip(s.c); }).join('<br>') : '<span class="sbna">Not submitted</span>') + '</td>' +
       '<td>' + (mts.length ? mts.map(function (m) { return lnk(m.c, m.u) + ' <span class="sbs">' + esc(m.s) + '</span>'; }).join('<br>') : '<span class="sbna">–</span>') + '</td>' +
       '<td><div class="sbbar"><i style="width:' + v + '%"></i></div><span class="sbs">' + v + '%</span></td>' +

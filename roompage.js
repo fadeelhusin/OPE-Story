@@ -21,7 +21,7 @@
       if (f.n) h += '<div class="small rp-note">' + esc(f.n) + '</div>';
       h += '</div>';
     });
-    if (!ids || !ids.length) h += '<div class="rp-gap">Not tagged on SD / IFC drawings · RFI</div>';
+    if (!ids || !ids.length) h += '<div class="rp-gap">Not on drawings or Room Finishes Schedule · RFI</div>';
     if (k) {
       var v = getProg(k, part);
       h += '<div class="rp-prog"><div class="rp-prog-h"><span>Site progress</span><b id="pg-' + part + '">' + v + '%</b></div>' +
