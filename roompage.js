@@ -30,7 +30,7 @@
     return h + '</div>';
   }
   function progAll() { try { return JSON.parse(localStorage.getItem('ope_prog') || '{}'); } catch (x) { return {}; } }
-  function getProg(k, part) { var a = progAll(); return (a[k] && a[k][part]) || 0; }
+  function getProg(k, part) { if (window.Cloud && Cloud.prog && Cloud.prog(k)) return Cloud.prog(k)[part] || 0; var a = progAll(); return (a[k] && a[k][part]) || 0; }
   function partOf(k) { var p = k.charAt(0); return p === '4' ? '004' : p === '5' ? '005' : ROOMS[k] && ROOMS[k].zone || ''; }
 
   /* ---------- routing: plans only ---------- */
@@ -125,6 +125,7 @@
       });
     });
     try { localStorage.setItem('joh_cur_room', JSON.stringify({ id: k, t: Date.now() })); } catch (x) {}
+    if (window.Cloud && Cloud.onRoom) Cloud.onRoom(k);
   };
 
   function waText(k, note) {
@@ -135,7 +136,7 @@
       L.push('Sub-contractor: ' + r.sc);
       L.push('Walls: ' + (r.ifc.w || '–') + ' | Floor: ' + (r.ifc.f || '–') + ' | Ceiling: ' + (r.ifc.c || '–'));
       r.dr.forEach(function (x) { L.push('Door ' + x.tag + ': ' + [x.type, x.fire, x.ac, x.size].filter(Boolean).join(' · ')); });
-      var pa = progAll()[k];
+      var pa = (window.Cloud && Cloud.prog && Cloud.prog(k)) || progAll()[k];
       if (pa) L.push('Site progress: Walls ' + (pa.w || 0) + '% | Floor ' + (pa.f || 0) + '% | Ceiling ' + (pa.c || 0) + '%');
       var open = r.sd.filter(function (s) { return /^[EGD]/.test(s.c); });
       if (open.length) L.push('Open SDs: ' + open.map(function (s) { return s.no + ' (' + s.c + ')'; }).join(', '));
@@ -166,10 +167,13 @@
 
   window.RoomPage = {
     labelled: function (k) { return labelled(k); },
+    added: function () { return ADDED.slice(); },
+    clear: function () { ADDED = []; SNAP = null; },
     setProg: function (k, part, el) {
       var a = progAll(); a[k] = a[k] || {}; a[k][part] = +el.value; a[k].t = Date.now();
       try { localStorage.setItem('ope_prog', JSON.stringify(a)); } catch (x) {}
       el.style.setProperty('--p', el.value + '%'); var b = document.getElementById('pg-' + part); if (b) b.textContent = el.value + '%';
+      if (window.Cloud && Cloud.saveProg) Cloud.saveProg(k, part, +el.value);
     },
     snap: function (k) {
       SNAP = null;
