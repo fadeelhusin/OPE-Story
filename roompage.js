@@ -1,4 +1,4 @@
-/* Plans-only app: plan browse, room page with register info, WhatsApp message with room plan + photos/videos */
+/* Plans-only app: plan browse, room page with register info, Site Note with room plan snap + photos/videos */
 (function () {
   var REG = window.REGISTER_DATA || {};
   function lastLvl() { try { var l = localStorage.getItem('joh_last_level'); if (l && LEVELS.indexOf(l) >= 0) return l; } catch (x) {} return LEVELS.indexOf('00') >= 0 ? '00' : LEVELS[0]; }
@@ -8,7 +8,7 @@
   }
   function lnk(t, u) { return u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(t) + '</a>' : esc(t); }
   var LIB = window.FINISH_LIB || {};
-  function finBlock(label, ifc, ids) {
+  function finBlock(label, ifc, ids, k, part) {
     var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span><span class="small">IFC: ' + esc(ifc || '–') + '</span></div>';
     (ids || []).forEach(function (id) {
       var f = LIB[id]; if (!f) return;
@@ -22,8 +22,15 @@
       h += '</div>';
     });
     if (!ids || !ids.length) h += '<div class="small rp-note">No system matched – check the IFC room drawing.</div>';
+    if (k) {
+      var v = getProg(k, part);
+      h += '<div class="rp-prog"><div class="rp-prog-h"><span>Site progress</span><b id="pg-' + part + '">' + v + '%</b></div>' +
+        '<input type="range" min="0" max="100" step="5" value="' + v + '" style="--p:' + v + '%" oninput="RoomPage.setProg(\'' + esc(k) + '\',\'' + part + '\',this)"></div>';
+    }
     return h + '</div>';
   }
+  function progAll() { try { return JSON.parse(localStorage.getItem('ope_prog') || '{}'); } catch (x) { return {}; } }
+  function getProg(k, part) { var a = progAll(); return (a[k] && a[k][part]) || 0; }
   function partOf(k) { var p = k.charAt(0); return p === '4' ? '004' : p === '5' ? '005' : ROOMS[k] && ROOMS[k].zone || ''; }
 
   /* ---------- routing: plans only ---------- */
@@ -67,7 +74,7 @@
 
     if (r) {
       h += '<div class="rp-scope"><span>Sub-contractor</span><b>' + esc(r.sc) + '</b></div>';
-      h += '<h2 class="sec">Finishes – approved materials &amp; build-up</h2>' + finBlock('Walls', r.ifc.w, r.fx && r.fx.w) + finBlock('Floor', r.ifc.f, r.fx && r.fx.f) + finBlock('Ceiling', r.ifc.c, r.fx && r.fx.c);
+      h += '<h2 class="sec">Finishes – approved materials &amp; build-up</h2>' + finBlock('Walls', r.ifc.w, r.fx && r.fx.w, k, 'w') + finBlock('Floor', r.ifc.f, r.fx && r.fx.f, k, 'f') + finBlock('Ceiling', r.ifc.c, r.fx && r.fx.c, k, 'c');
       if (r.dr.length) {
         h += '<h2 class="sec">Doors</h2><div class="rp-list">';
         r.dr.forEach(function (x) { h += '<div class="card rp-item"><b>' + esc(x.tag) + ' · ' + esc(x.type) + '</b><span>' + esc([x.fire, x.ac, x.size, x.th].filter(Boolean).join(' · ')) + '</span>' + (x.fin ? '<span class="small">' + esc(x.fin) + '</span>' : '') + (x.hw ? '<span class="small">' + esc(x.hw) + '</span>' : '') + '</div>'; });
@@ -93,21 +100,24 @@
       h += '<h2 class="sec">Room info</h2><table class="kv card"><tbody>' + row2('Room name', d.name) + row2('Zone', d.zone) + row2('Function', d.function) + '</tbody></table>';
     }
 
-    /* WhatsApp composer */
-    h += '<h2 class="sec">WhatsApp message</h2><div class="card rp-wa">' +
-      '<textarea id="wa-note" rows="3" placeholder="Note to send with the room plan (issue, request, update)…"></textarea>' +
+    /* Site Note */
+    h += '<h2 class="sec">Site Note</h2><div class="card rp-wa">' +
+      '<button class="btn ghost" onclick="RoomPage.snap(\'' + esc(k) + '\')">📸 Snap room on plan</button>' +
+      '<div id="sn-snap" class="rp-snap"></div>' +
+      '<textarea id="wa-note" rows="3" placeholder="Site note (issue, request, update)…"></textarea>' +
       '<label class="btn ghost rp-file">📎 Add photos / videos<input id="wa-files" type="file" accept="image/*,video/*" multiple hidden></label>' +
       '<div id="wa-thumbs" class="rp-thumbs"></div>' +
-      '<label class="rp-chk"><input type="checkbox" id="wa-plan" checked> Attach room plan image</label>' +
-      '<button class="btn brass sc-big" onclick="RoomPage.sendWA(\'' + esc(k) + '\')">Send on WhatsApp</button>' +
+      '<button class="btn brass sc-big" onclick="RoomPage.sendWA(\'' + esc(k) + '\')">Send</button>' +
       '<div id="wa-msg" class="small"></div></div>';
     h += '<button class="btn ghost rp-status" onclick="askClaude(\'' + esc(k) + '\')">📊 Status – room storyboard</button>';
     app.innerHTML = h;
     if (d.pos) Viewer.openRoom(k, 'pv');
+    SNAP = null; ADDED = [];
     var fi = document.getElementById('wa-files');
     fi.addEventListener('change', function () {
       var t = document.getElementById('wa-thumbs'); t.innerHTML = '';
-      Array.prototype.forEach.call(fi.files, function (f) {
+      ADDED = ADDED.concat(Array.prototype.slice.call(fi.files)); fi.value = '';
+      ADDED.forEach(function (f) {
         var u = URL.createObjectURL(f);
         t.insertAdjacentHTML('beforeend', f.type.indexOf('video') === 0 ? '<video src="' + u + '" muted></video>' : '<img src="' + u + '" alt="">');
       });
@@ -123,6 +133,8 @@
       L.push('Sub-contractor: ' + r.sc);
       L.push('Walls: ' + (r.ifc.w || '–') + ' | Floor: ' + (r.ifc.f || '–') + ' | Ceiling: ' + (r.ifc.c || '–'));
       r.dr.forEach(function (x) { L.push('Door ' + x.tag + ': ' + [x.type, x.fire, x.ac, x.size].filter(Boolean).join(' · ')); });
+      var pa = progAll()[k];
+      if (pa) L.push('Site progress: Walls ' + (pa.w || 0) + '% | Floor ' + (pa.f || 0) + '% | Ceiling ' + (pa.c || 0) + '%');
       var open = r.sd.filter(function (s) { return /^[EGD]/.test(s.c); });
       if (open.length) L.push('Open SDs: ' + open.map(function (s) { return s.no + ' (' + s.c + ')'; }).join(', '));
     }
@@ -130,30 +142,55 @@
     L.push(''); L.push(location.origin + location.pathname + '#/room/' + encodeURIComponent(k));
     return L.join('\n');
   }
+  var SNAP = null, ADDED = [];
+  function labelled(k) {
+    var c = Viewer.snapshot && Viewer.snapshot(); if (!c) return null;
+    var d = ROOMS[k] || {}, r = REG[k], sc = Math.max(1, c.width / 800), band = Math.round(70 * sc);
+    var o = document.createElement('canvas'); o.width = c.width; o.height = c.height + band;
+    var x = o.getContext('2d'); x.fillStyle = '#1E2A33'; x.fillRect(0, 0, o.width, band); x.drawImage(c, 0, band);
+    x.fillStyle = '#fff'; x.font = 'bold ' + Math.round(26 * sc) + 'px Arial'; x.textBaseline = 'middle';
+    x.fillText(k + '  –  ' + ((r && r.ifc.n) || d.name || ''), 16 * sc, band * 0.38);
+    x.font = Math.round(15 * sc) + 'px Arial'; x.fillStyle = '#D9C9A8';
+    x.fillText('Jeddah Opera House · Level ' + (d.baseLevel || '') + ' · Part ' + partOf(k) + ' · ' + new Date().toLocaleDateString('en-GB'), 16 * sc, band * 0.76);
+    return o;
+  }
   function planBlob(k) {
     return new Promise(function (res) {
-      try { var c = Viewer.snapshot && Viewer.snapshot(); if (!c) return res(null); c.toBlob(function (b) { res(b); }, 'image/png'); } catch (e) { res(null); }
+      if (SNAP) return res(SNAP);
+      try { var c = labelled(k); if (!c) return res(null); c.toBlob(function (b) { SNAP = b; res(b); }, 'image/jpeg', 0.9); } catch (e) { res(null); }
     });
   }
   function msg(t) { var e = document.getElementById('wa-msg'); if (e) e.textContent = t; }
 
   window.RoomPage = {
+    setProg: function (k, part, el) {
+      var a = progAll(); a[k] = a[k] || {}; a[k][part] = +el.value; a[k].t = Date.now();
+      try { localStorage.setItem('ope_prog', JSON.stringify(a)); } catch (x) {}
+      el.style.setProperty('--p', el.value + '%'); var b = document.getElementById('pg-' + part); if (b) b.textContent = el.value + '%';
+    },
+    snap: function (k) {
+      SNAP = null;
+      planBlob(k).then(function (b) {
+        var e = document.getElementById('sn-snap');
+        if (!b) { e.innerHTML = '<div class="small">Plan not ready – wait for it to load and try again.</div>'; return; }
+        e.innerHTML = '<img src="' + URL.createObjectURL(b) + '" alt="Room ' + esc(k) + ' on plan">';
+      });
+    },
     sendWA: function (k) {
       var note = (document.getElementById('wa-note').value || '').trim();
       var text = waText(k, note);
-      var picked = Array.prototype.slice.call(document.getElementById('wa-files').files || []);
-      var withPlan = document.getElementById('wa-plan').checked;
-      (withPlan ? planBlob(k) : Promise.resolve(null)).then(function (b) {
+      var picked = ADDED.slice();
+      planBlob(k).then(function (b) {
         var files = picked.slice();
-        if (b) files.unshift(new File([b], 'Room_' + k + '_plan.png', { type: 'image/png' }));
+        if (b) files.unshift(new File([b], 'Room_' + k + '_plan.jpg', { type: 'image/jpeg' }));
         var data = { text: text, files: files };
         if (files.length && navigator.canShare && navigator.canShare({ files: files })) {
-          navigator.share(data).then(function () { msg('Shared – choose WhatsApp in the share sheet.'); }, function (e) { if (e && e.name !== 'AbortError') msg('Sharing failed: ' + e.message); });
+          navigator.share(data).then(function () { msg('Sent.'); }, function (e) { if (e && e.name !== 'AbortError') msg('Sharing failed: ' + e.message); });
           return;
         }
         if (!files.length && navigator.share) { navigator.share({ text: text }).catch(function () {}); return; }
         /* desktop fallback: download the plan and open WhatsApp with the text */
-        if (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'Room_' + k + '_plan.png'; document.body.appendChild(a); a.click(); a.remove(); }
+        if (b) { var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'Room_' + k + '_plan.jpg'; document.body.appendChild(a); a.click(); a.remove(); }
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
         msg(files.length ? 'WhatsApp opened with the text. The plan image was downloaded – attach it and your photos in WhatsApp.' : 'WhatsApp opened with the room details.');
       });
