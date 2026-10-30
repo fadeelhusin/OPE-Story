@@ -503,3 +503,15 @@ nav#tabbar[hidden]{display:none!important}
 .rp-prog input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid #2F6B4F;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .rp-prog input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #2F6B4F}
 .rp-snap img{width:100%;border-radius:8px;border:1px solid var(--line-strong)}
+
+.rp-gap{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:99px;background:#F8E1DD;color:#A1352A;font-size:12px;font-weight:600}
+.sn-modal{position:fixed;inset:0;z-index:9000;background:rgba(20,25,30,.55);display:flex;align-items:flex-end;justify-content:center;padding:env(safe-area-inset-top,0) 0 0}
+.sn-box{background:var(--card,#fff);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:14px 14px 0 0;padding:14px max(14px,env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
+.sn-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.sn-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sn-btns .btn{text-align:center}
+.sn-box textarea{width:100%;box-sizing:border-box;border:1px solid var(--line-strong);border-radius:var(--radius);padding:10px;font:inherit;font-size:15px}
+.sn-th{position:relative;display:inline-block}.sn-th button{position:absolute;top:2px;right:2px;border:0;border-radius:50%;width:22px;height:22px;background:rgba(0,0,0,.6);color:#fff;font-size:12px}
+.rp-ph{padding:12px;display:flex;flex-direction:column;gap:10px}.rp-ph-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.rp-ph-btns .btn{text-align:center}
+.rp-ph-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.rp-ph-it{position:relative;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden;background:#fff}.rp-ph-it img{display:block;width:100%;height:120px;object-fit:cover}
+.rp-ph-it .d{font-size:12px;padding:4px 6px}.rp-ph-it button{position:absolute;top:4px;right:4px;border:0;border-radius:6px;background:rgba(161,53,42,.9);color:#fff;font-size:12px;padding:3px 7px}

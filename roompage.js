@@ -21,7 +21,7 @@
       if (f.n) h += '<div class="small rp-note">' + esc(f.n) + '</div>';
       h += '</div>';
     });
-    if (!ids || !ids.length) h += '<div class="small rp-note">No system matched – check the IFC room drawing.</div>';
+    if (!ids || !ids.length) h += '<div class="rp-gap">Not tagged on SD / IFC drawings · RFI</div>';
     if (k) {
       var v = getProg(k, part);
       h += '<div class="rp-prog"><div class="rp-prog-h"><span>Site progress</span><b id="pg-' + part + '">' + v + '%</b></div>' +
@@ -101,40 +101,30 @@
       h += '<h2 class="sec">Room info</h2><table class="kv card"><tbody>' + row2('Room name', d.name) + row2('Zone', d.zone) + row2('Function', d.function) + '</tbody></table>';
     }
 
-    /* Site Note */
-    h += '<h2 class="sec">Site Note</h2><div class="card rp-wa">' +
-      '<button class="btn ghost" onclick="RoomPage.snap(\'' + esc(k) + '\')">📸 Snap room on plan</button>' +
-      '<div id="sn-snap" class="rp-snap"></div>' +
-      '<textarea id="wa-note" rows="3" placeholder="Site note (issue, request, update)…"></textarea>' +
-      '<label class="btn ghost rp-file">📎 Add photos / videos<input id="wa-files" type="file" accept="image/*,video/*" multiple hidden></label>' +
-      '<div id="wa-thumbs" class="rp-thumbs"></div>' +
-      '<button class="btn brass sc-big" onclick="RoomPage.sendWA(\'' + esc(k) + '\')">Send</button>' +
-      '<div id="wa-msg" class="small"></div></div>';
+    /* Site Note (popup) + room photos */
+    h += '<div class="card rp-wa"><button class="btn brass sc-big" onclick="RoomPage.openNote(\'' + esc(k) + '\')">📝 Site Note</button></div>';
+    if (!window.Cloud) h += '<h2 class="sec">Room photos</h2><div class="card rp-ph" id="rp-photos">' +
+      '<div class="rp-ph-btns"><label class="btn ghost">📷 Camera<input id="ph-cam" type="file" accept="image/*" capture="environment" hidden></label>' +
+      '<label class="btn ghost">🖼 Gallery<input id="ph-gal" type="file" accept="image/*" multiple hidden></label></div>' +
+      '<div id="ph-msg" class="small"></div><div id="ph-list" class="rp-ph-list"></div></div>';
     h += '<button class="btn ghost rp-status" onclick="location.hash=\'#/story/' + esc(k) + '\'">📊 Status – room storyboard</button>' +
       '<button class="btn ghost rp-status" style="margin-top:-14px" onclick="askClaude(\'' + esc(k) + '\')">Ask in the project chat</button>';
     app.innerHTML = h;
     if (d.pos) Viewer.openRoom(k, 'pv');
     SNAP = null; ADDED = [];
-    var fi = document.getElementById('wa-files');
-    fi.addEventListener('change', function () {
-      var t = document.getElementById('wa-thumbs'); t.innerHTML = '';
-      ADDED = ADDED.concat(Array.prototype.slice.call(fi.files)); fi.value = '';
-      ADDED.forEach(function (f) {
-        var u = URL.createObjectURL(f);
-        t.insertAdjacentHTML('beforeend', f.type.indexOf('video') === 0 ? '<video src="' + u + '" muted></video>' : '<img src="' + u + '" alt="">');
-      });
-    });
+    if (window.Photos && document.getElementById('rp-photos')) Photos.mount(k);
     try { localStorage.setItem('joh_cur_room', JSON.stringify({ id: k, t: Date.now() })); } catch (x) {}
     if (window.Cloud && Cloud.onRoom) Cloud.onRoom(k);
   };
 
   function waText(k, note) {
     var d = ROOMS[k] || {}, r = REG[k], g = window.Grid && Grid.ofRoom(k), L = [];
-    L.push('*JOH – Room ' + k + ' – ' + ((r && r.ifc.n) || d.name || '') + '*');
+    L.push('#OPE ' + k + ' | ' + ((r && r.ifc.n) || d.name || ''));
     L.push('Level ' + d.baseLevel + ' · Part ' + partOf(k) + (g ? ' · Grid ' + g.text : '') + (d.area ? ' · ' + d.area + ' m²' : ''));
     if (r) {
       L.push('Sub-contractor: ' + r.sc);
-      L.push('Walls: ' + (r.ifc.w || '–') + ' | Floor: ' + (r.ifc.f || '–') + ' | Ceiling: ' + (r.ifc.c || '–'));
+      var cd = function (p) { return (r.fx[p] || []).map(function (i) { return LIB[i] ? LIB[i].code : i; }).join(', ') || '–'; };
+      L.push('Walls: ' + cd('w') + ' | Floor: ' + cd('f') + ' | Ceiling: ' + cd('c'));
       r.dr.forEach(function (x) { L.push('Door ' + x.tag + ': ' + [x.type, x.fire, x.ac, x.size].filter(Boolean).join(' · ')); });
       var pa = (window.Cloud && Cloud.prog && Cloud.prog(k)) || progAll()[k];
       if (pa) L.push('Site progress: Walls ' + (pa.w || 0) + '% | Floor ' + (pa.f || 0) + '% | Ceiling ' + (pa.c || 0) + '%');
@@ -183,7 +173,39 @@
         e.innerHTML = '<img src="' + URL.createObjectURL(b) + '" alt="Room ' + esc(k) + ' on plan">';
       });
     },
+    openNote: function (k) {
+      var m = document.getElementById('sn-modal'); if (m) m.remove();
+      var d = ROOMS[k] || {}, r = REG[k];
+      document.body.insertAdjacentHTML('beforeend', '<div id="sn-modal" class="sn-modal" role="dialog" aria-modal="true" aria-label="Site note"><div class="sn-box">' +
+        '<div class="sn-head"><div><b>' + esc(k) + '</b> ' + esc((r && r.ifc.n) || d.name || '') + '</div><button class="btn ghost" onclick="RoomPage.closeNote()" aria-label="Close">✕</button></div>' +
+        '<div id="sn-snap" class="rp-snap"><div class="small">Preparing the room snap…</div></div>' +
+        '<div class="sn-btns"><label class="btn ghost">📷 Photo<input id="sn-cam" type="file" accept="image/*" capture="environment" hidden></label>' +
+        '<label class="btn ghost">🎥 Video<input id="sn-vid" type="file" accept="video/*" capture="environment" hidden></label>' +
+        '<label class="btn ghost">🖼 Gallery<input id="sn-gal" type="file" accept="image/*,video/*" multiple hidden></label></div>' +
+        '<div id="wa-thumbs" class="rp-thumbs"></div>' +
+        '<textarea id="wa-note" rows="4" placeholder="Message…"></textarea>' +
+        '<button id="sn-send" class="btn brass sc-big" onclick="RoomPage.sendWA(\'' + esc(k) + '\')">Send</button><div id="wa-msg" class="small"></div></div></div>');
+      ADDED = []; SNAP = null;
+      ['sn-cam', 'sn-vid', 'sn-gal'].forEach(function (id) {
+        var fi = document.getElementById(id);
+        fi.addEventListener('change', function () {
+          ADDED = ADDED.concat(Array.prototype.slice.call(fi.files)); fi.value = '';
+          var t = document.getElementById('wa-thumbs'); t.innerHTML = '';
+          ADDED.forEach(function (f, i) {
+            var u = URL.createObjectURL(f);
+            t.insertAdjacentHTML('beforeend', '<span class="sn-th">' + (f.type.indexOf('video') === 0 ? '<video src="' + u + '" muted></video>' : '<img src="' + u + '" alt="">') + '<button onclick="RoomPage.dropMedia(' + i + ')" aria-label="Remove">✕</button></span>');
+          });
+        });
+      });
+      planBlob(k).then(function (b) { var e = document.getElementById('sn-snap'); if (e) e.innerHTML = b ? '<img src="' + URL.createObjectURL(b) + '" alt="Room ' + esc(k) + ' on plan">' : '<div class="small">Plan not ready.</div>'; });
+    },
+    closeNote: function () { var m = document.getElementById('sn-modal'); if (m) m.remove(); },
+    dropMedia: function (i) {
+      ADDED.splice(i, 1); var t = document.getElementById('wa-thumbs'); t.innerHTML = '';
+      ADDED.forEach(function (f, j) { var u = URL.createObjectURL(f); t.insertAdjacentHTML('beforeend', '<span class="sn-th">' + (f.type.indexOf('video') === 0 ? '<video src="' + u + '" muted></video>' : '<img src="' + u + '" alt="">') + '<button onclick="RoomPage.dropMedia(' + j + ')" aria-label="Remove">✕</button></span>'); });
+    },
     sendWA: function (k) {
+      if (window.Cloud && Cloud.saveNote) return Cloud.saveNote(k);
       var note = (document.getElementById('wa-note').value || '').trim();
       var text = waText(k, note);
       var picked = ADDED.slice();
@@ -192,7 +214,7 @@
         if (b) files.unshift(new File([b], 'Room_' + k + '_plan.jpg', { type: 'image/jpeg' }));
         var data = { text: text, files: files };
         if (files.length && navigator.canShare && navigator.canShare({ files: files })) {
-          navigator.share(data).then(function () { msg('Sent.'); }, function (e) { if (e && e.name !== 'AbortError') msg('Sharing failed: ' + e.message); });
+          navigator.share(data).then(function () { msg('Sent.'); setTimeout(RoomPage.closeNote, 800); }, function (e) { if (e && e.name !== 'AbortError') msg('Sharing failed: ' + e.message); });
           return;
         }
         if (!files.length && navigator.share) { navigator.share({ text: text }).catch(function () {}); return; }
