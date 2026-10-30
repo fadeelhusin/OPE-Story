@@ -519,3 +519,12 @@ nav#tabbar[hidden]{display:none!important}
 .rp-ph{border-top:1px dashed var(--line-strong);margin-top:12px;padding:10px 0 0}.rp-ph-h{font-size:13px;font-weight:600;margin-bottom:6px}
 .mkdot.stale{background:#C0281C!important;border-color:#fff!important;box-shadow:0 0 0 2px #C0281C}
 .rhead .rn.stale{color:#C0281C}
+
+.rp-topbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}.rp-topbtns .rp-stbtn{margin-left:0}
+.rp-notebtn{padding:10px 16px;font-weight:700}
+.sn-box textarea{min-height:0;height:auto;resize:vertical}
+.rp-log{padding:12px}
+.rp-wa[hidden]{display:none!important}
+.sn-box>*{flex-shrink:0}
+.sn-box textarea{min-height:4.8em;line-height:1.4}
+.sn-box .rp-snap img{max-height:40vh;width:100%;object-fit:cover;object-position:top}

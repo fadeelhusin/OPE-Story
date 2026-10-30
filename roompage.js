@@ -67,7 +67,8 @@
     var h = '<div class="rtop"><button class="btn ghost" onclick="location.hash=\'#/plan/' + esc(d.baseLevel) + '\'">←</button>' +
       '<div class="rhead"><div class="rn">' + esc(k) + '</div><div class="rt">' + esc((r && r.ifc.n) || d.name || '') + '</div>' +
       '<div class="small">Level ' + esc(d.baseLevel) + ' · Part ' + esc(partOf(k)) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + '</div></div>' +
-      '<button class="btn brass rp-stbtn" onclick="location.hash=\'#/story/' + esc(k) + '\'">Status</button></div>';
+      '<div class="rp-topbtns"><button class="btn ghost rp-notebtn" onclick="RoomPage.openNote(\'' + esc(k) + '\')">Note</button>' +
+      '<button class="btn brass rp-stbtn" onclick="location.hash=\'#/story/' + esc(k) + '\'">Status</button></div></div>';
     h += '<div class="hero small-hero rp-plan">';
     if (d.pos) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(d.baseLevel) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
@@ -103,7 +104,7 @@
     }
 
     /* Site Note (popup) + room photos */
-    h += '<div class="card rp-wa"><button class="btn brass sc-big" onclick="RoomPage.openNote(\'' + esc(k) + '\')">📝 Site Note</button></div>';
+    h += '<div class="rp-wa" hidden></div>';
     h += '<button class="btn ghost rp-status" onclick="location.hash=\'#/story/' + esc(k) + '\'">📊 Status – room storyboard</button>' +
       '<button class="btn ghost rp-status" style="margin-top:-14px" onclick="askClaude(\'' + esc(k) + '\')">Ask in the project chat</button>';
     app.innerHTML = h;
@@ -164,14 +165,14 @@
     openNote: function (k) {
       var m = document.getElementById('sn-modal'); if (m) m.remove();
       var d = ROOMS[k] || {}, r = REG[k];
-      document.body.insertAdjacentHTML('beforeend', '<div id="sn-modal" class="sn-modal" role="dialog" aria-modal="true" aria-label="Site note"><div class="sn-box">' +
+      document.body.insertAdjacentHTML('beforeend', '<div id="sn-modal" class="sn-modal" role="dialog" aria-modal="true" aria-label="Note"><div class="sn-box">' +
         '<div class="sn-head"><div><b>' + esc(k) + '</b> ' + esc((r && r.ifc.n) || d.name || '') + '</div><button class="btn ghost" onclick="RoomPage.closeNote()" aria-label="Close">✕</button></div>' +
         '<div id="sn-snap" class="rp-snap"><div class="small">Preparing the room snap…</div></div>' +
         '<div class="sn-btns"><label class="btn ghost">📷 Photo<input id="sn-cam" type="file" accept="image/*" capture="environment" hidden></label>' +
         '<label class="btn ghost">🎥 Video<input id="sn-vid" type="file" accept="video/*" capture="environment" hidden></label>' +
         '<label class="btn ghost">🖼 Gallery<input id="sn-gal" type="file" accept="image/*,video/*" multiple hidden></label></div>' +
         '<div id="wa-thumbs" class="rp-thumbs"></div>' +
-        '<textarea id="wa-note" rows="4" placeholder="Message…"></textarea>' +
+        '<textarea id="wa-note" rows="3" placeholder="Comment…"></textarea>' +
         '<button id="sn-send" class="btn brass sc-big" onclick="RoomPage.sendWA(\'' + esc(k) + '\')">Send</button><div id="wa-msg" class="small"></div></div></div>');
       ADDED = []; SNAP = null;
       ['sn-cam', 'sn-vid', 'sn-gal'].forEach(function (id) {
