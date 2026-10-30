@@ -493,3 +493,5 @@ nav#tabbar[hidden]{display:none!important}
 .rp-layers li.top{background:#f3e7cf;font-weight:600}
 .rp-layers li:last-child{background:#e7e2d8;color:var(--ink-soft)}
 .rp-note{color:var(--ink-soft)}
+
+.rtop{align-items:center}.rp-stbtn{margin-left:auto;padding:10px 18px;font-weight:700;flex-shrink:0}

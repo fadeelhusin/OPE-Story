@@ -57,7 +57,8 @@
     var r = REG[k] || null, g = window.Grid && Grid.ofRoom(k);
     var h = '<div class="rtop"><button class="btn ghost" onclick="location.hash=\'#/plan/' + esc(d.baseLevel) + '\'">←</button>' +
       '<div class="rhead"><div class="rn">' + esc(k) + '</div><div class="rt">' + esc((r && r.ifc.n) || d.name || '') + '</div>' +
-      '<div class="small">Level ' + esc(d.baseLevel) + ' · Part ' + esc(partOf(k)) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + '</div></div></div>';
+      '<div class="small">Level ' + esc(d.baseLevel) + ' · Part ' + esc(partOf(k)) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + '</div></div>' +
+      '<button class="btn brass rp-stbtn" onclick="askClaude(\'' + esc(k) + '\')">Status</button></div>';
     h += '<div class="hero small-hero rp-plan">';
     if (d.pos) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(d.baseLevel) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
@@ -100,7 +101,7 @@
       '<label class="rp-chk"><input type="checkbox" id="wa-plan" checked> Attach room plan image</label>' +
       '<button class="btn brass sc-big" onclick="RoomPage.sendWA(\'' + esc(k) + '\')">Send on WhatsApp</button>' +
       '<div id="wa-msg" class="small"></div></div>';
-    h += '<button class="btn ghost rp-status" onclick="askClaude(\'' + esc(k) + '\')">📊 Room Status</button>';
+    h += '<button class="btn ghost rp-status" onclick="askClaude(\'' + esc(k) + '\')">📊 Status – room storyboard</button>';
     app.innerHTML = h;
     if (d.pos) Viewer.openRoom(k, 'pv');
     var fi = document.getElementById('wa-files');

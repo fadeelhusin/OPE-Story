@@ -569,19 +569,19 @@ var Fab = { go: function (fn) { var w = document.getElementById('fabw'); if (w) 
 var CLAUDE_CHAT_URL = 'https://claude.ai/code/session_01EPHKLrXaDW8JJ75Q2gcnCW';
 function claudeUrl() { try { return localStorage.getItem('joh_claude_url') || CLAUDE_CHAT_URL; } catch (x) { return CLAUDE_CHAT_URL; } }
 function roomBrief(k) {
-  var d = ROOMS[k] || {}, g = window.Grid && Grid.ofRoom(k), L = [];
-  L.push('JOH room ' + k + ' – ' + (d.name || ''));
-  L.push('Level ' + (d.baseLevel || d.level || '') + (d.zone ? ' · Zone ' + d.zone : '') + (g ? ' · Grid ' + g.text : '') + (d.area ? ' · ' + d.area + ' m²' : ''));
-  if (d.function) L.push('Function: ' + d.function);
-  if (d.fin) {
-    var w = (d.fin.walls || []).map(function (x) { return x.type; }).filter(Boolean);
-    if (w.length) L.push('Walls: ' + w.join(', '));
-    if (d.fin.floor && d.fin.floor.finish) L.push('Floor: ' + d.fin.floor.finish);
-    if (d.fin.ceiling && (d.fin.ceiling.finish || d.fin.ceiling.type)) L.push('Ceiling: ' + (d.fin.ceiling.finish || d.fin.ceiling.type));
+  var d = ROOMS[k] || {}, g = window.Grid && Grid.ofRoom(k), r = window.REGISTER_DATA && REGISTER_DATA[k], L = [];
+  L.push('ROOM STATUS – ' + k + ' – ' + ((r && r.ifc.n) || d.name || ''));
+  L.push('Level ' + (d.baseLevel || d.level || '') + ' · Part ' + (k.charAt(0) === '4' ? '004' : k.charAt(0) === '5' ? '005' : (d.zone || '')) + (g ? ' · Grid ' + g.text : '') + (d.area ? ' · ' + d.area + ' m²' : '') + (r ? ' · ' + r.sc : ''));
+  if (r) {
+    var c = function (ids) { return (ids || []).map(function (i) { return window.FINISH_LIB && FINISH_LIB[i] ? FINISH_LIB[i].code : i; }).join(', '); };
+    L.push('Finishes: Walls ' + (c(r.fx.w) || r.ifc.w || '–') + ' | Floor ' + (c(r.fx.f) || r.ifc.f || '–') + ' | Ceiling ' + (c(r.fx.c) || r.ifc.c || '–'));
   }
-  L.push('App link: ' + location.origin + location.pathname + '#/room/' + encodeURIComponent(k));
+  L.push('App: ' + location.origin + location.pathname + '#/room/' + encodeURIComponent(k));
   L.push('');
-  L.push('ROOM STATUS – search the P4-P5 finishes register (Excel) and our chat for this room: TQ/RFI, shop drawings and codes, IFC finishes, MTS approvals, open actions and site status. Reply in English as one clear table (Item | Requirement / Code | Shop Drawing & JCDC Code | MTS / Approval | Status / Action), with every shop drawing, material approval, TQ and document as a clickable link. Deliver it as a Room Status HTML page (all links live) with the location plan, drawing snippets for the room and the key consultant comments. Then update it with the notes/photos below:');
+  L.push('Prepare the full room status for this room from the P4-P5 finishes register, the Opera House_Archive and our chat:');
+  L.push('1. One table in English: Item | Requirement / Code | Shop drawing & JCDC code | MTS / approval | Status / action – every shop drawing, MTS, TQ/RFI and document as a live link.');
+  L.push('2. A Room Status HTML page laid out as a storyboard: room header, location plan with the room marked, drawing snippets (plan, RCP, finish plan, sections/details), finishes with build-up, status table, consultant comment snippets, open actions, sources.');
+  L.push('Site notes / photos:');
   return L.join('\n');
 }
 function askClaude(k) {
