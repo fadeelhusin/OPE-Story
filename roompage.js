@@ -115,21 +115,10 @@
   };
 
   function waText(k, note) {
-    var d = ROOMS[k] || {}, r = REG[k], g = window.Grid && Grid.ofRoom(k), L = [];
+    var d = ROOMS[k] || {}, r = REG[k], L = [];
     L.push('#OPE ' + k + ' | ' + ((r && r.ifc.n) || d.name || ''));
-    L.push('Level ' + d.baseLevel + ' · Part ' + partOf(k) + (g ? ' · Grid ' + g.text : '') + (d.area ? ' · ' + d.area + ' m²' : ''));
-    if (r) {
-      L.push('Sub-contractor: ' + r.sc);
-      var cd = function (p) { return (r.fx[p] || []).map(function (i) { return LIB[i] ? LIB[i].code : i; }).join(', ') || '–'; };
-      L.push('Walls: ' + cd('w') + ' | Floor: ' + cd('f') + ' | Ceiling: ' + cd('c'));
-      r.dr.forEach(function (x) { L.push('Door ' + x.tag + ': ' + [x.type, x.fire, x.ac, x.size].filter(Boolean).join(' · ')); });
-      var pa = (window.Cloud && Cloud.prog && Cloud.prog(k)) || (window.RoomStatus && RoomStatus.prog(k)) || progAll()[k];
-      if (pa) L.push('Site progress: Walls ' + (pa.w || 0) + '% | Floor ' + (pa.f || 0) + '% | Ceiling ' + (pa.c || 0) + '%');
-      var open = r.sd.filter(function (s) { return /^[EGD]/.test(s.c); });
-      if (open.length) L.push('Open SDs: ' + open.map(function (s) { return s.no + ' (' + s.c + ')'; }).join(', '));
-    }
+    L.push('Level ' + (d.baseLevel || '') + ' · Part ' + partOf(k));
     if (note) { L.push(''); L.push(note); }
-    L.push(''); L.push(location.origin + location.pathname + '#/room/' + encodeURIComponent(k));
     return L.join('\n');
   }
   var SNAP = null, ADDED = [];
