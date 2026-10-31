@@ -201,21 +201,29 @@ var Viewer = (function () {
   }
 
   /* shafts legend drawn on the sheet itself, in the free space left of the title block */
+  function vecKind(id) {
+    if (id.split('.')[2] !== 'VEC') return '';
+    var n = ((ROOMS[id] && ROOMS[id].name) || '').toLowerCase();
+    if (/lift|elevator/.test(n)) return 'lift';
+    if (/stair|ramp|escalator/.test(n)) return 'stair';
+    return '';
+  }
   function drawShaftLegend(ctx) {
-    var items = [['#007FFF', 'Mechanical riser'], ['#2E9E3E', 'Electrical riser'], ['#BF00FF', 'Pressurisation shaft'], ['#FF0000', 'MEP shaft (combined)']];
-    var s = V.viewScale, X = 0.708 * V.vw * s + V.tx, Y = 0.752 * V.vh * s + V.ty, W = 0.13 * V.vw * s, H = 0.15 * V.vh * s;
+    var items = [['#007FFF', 'Mechanical riser'], ['#2E9E3E', 'Electrical riser'], ['#BF00FF', 'Pressurisation shaft'], ['#FF0000', 'MEP shaft (combined)'], ['#111111', 'Stairs', 1], ['#FF7A00', 'Lifts', 1]];
+    var s = V.viewScale, X = 0.7 * V.vw * s + V.tx, Y = 0.705 * V.vh * s + V.ty, W = 0.142 * V.vw * s, H = 0.197 * V.vh * s;
     if (W < 24) return;
-    var u = H / 7.2;
+    var u = H / 9.9;
     ctx.save();
     ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.strokeStyle = '#333'; ctx.lineWidth = Math.max(0.5, u * 0.05);
     ctx.fillRect(X, Y, W, H); ctx.strokeRect(X, Y, W, H);
     ctx.fillStyle = '#111'; ctx.textBaseline = 'middle';
-    ctx.font = 'bold ' + (u * 0.75).toFixed(2) + 'px Arial'; ctx.fillText('SHAFTS & RISERS LEGEND', X + u * 0.6, Y + u * 0.9);
+    ctx.font = 'bold ' + (u * 0.75).toFixed(2) + 'px Arial'; ctx.fillText('SHAFTS, STAIRS & LIFTS', X + u * 0.6, Y + u * 0.9);
     ctx.font = (u * 0.7).toFixed(2) + 'px Arial';
     items.forEach(function (it, i) {
       var yy = Y + u * (2.3 + i * 1.35);
-      ctx.fillStyle = it[0]; ctx.fillRect(X + u * 0.6, yy - u * 0.42, u * 0.84, u * 0.84);
-      ctx.strokeStyle = '#333'; ctx.strokeRect(X + u * 0.6, yy - u * 0.42, u * 0.84, u * 0.84);
+      ctx.fillStyle = it[0]; ctx.strokeStyle = '#333';
+      if (it[2]) { ctx.beginPath(); ctx.arc(X + u * 1.02, yy, u * 0.44, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+      else { ctx.fillRect(X + u * 0.6, yy - u * 0.42, u * 0.84, u * 0.84); ctx.strokeRect(X + u * 0.6, yy - u * 0.42, u * 0.84, u * 0.84); }
       ctx.fillStyle = '#111'; ctx.fillText(it[1], X + u * 1.8, yy);
     });
     ctx.restore();
@@ -233,6 +241,7 @@ var Viewer = (function () {
         el.className = 'mkdot' + (ROOMS[m.id] && ROOMS[m.id].custom ? ' custom' : '') + (window.Site ? ' ' + Site.pinClass(m.id) : '') + (window.RoomStatus ? ' ' + RoomStatus.pinClass(m.id) : '');
         el.dataset.id = m.id;
         var shc = window.shaftColor && shaftColor(m.id); if (shc) { el.classList.add('shaft'); el.style.setProperty('--sc', shc); }
+        else { var vc = vecKind(m.id); if (vc) { el.classList.add('vec', vc); } }
         el.title = m.id;
         el.onclick = function (ev) { ev.stopPropagation(); if (V.onPick) V.onPick(m.id); };
         layer.appendChild(el);

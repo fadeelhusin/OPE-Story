@@ -1,6 +1,6 @@
 /* Search across rooms and room information: room no./name, finish codes and descriptions, shop drawings, MTS, doors, items. */
 (function () {
-  var IDX = null, LAST = { ids: [] }, PAL = ['#F2C200', '#00A6D6', '#E0409A', '#33B249', '#F07A1A', '#7A5CFF', '#D7263D', '#1FB5A8'];
+  var IDX = null, LAST = { ids: [] }, PAL = ['#F2C200', '#00A6D6', '#E0409A', '#33B249', '#8D6E63', '#7A5CFF', '#D7263D', '#1FB5A8'];
   function sets() { try { return JSON.parse(sessionStorage.getItem('gs_sets') || '[]'); } catch (x) { return []; } }
   function saveSets(a) { try { sessionStorage.setItem('gs_sets', JSON.stringify(a)); } catch (x) {} MAP = null; chips(); if (window.Viewer && Viewer.draw) Viewer.draw(); }
   var MAP = null;
