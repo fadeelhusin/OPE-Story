@@ -117,7 +117,7 @@ var Viewer = (function () {
     }).catch(function () { setStat('plan image'); if (cb) cb(); });
   }
 
-  function clampS(s) { return Math.max(V.mode === 'doc' ? 0.02 : 0.12, Math.min(V.mode === 'doc' ? 8 : V.maxScale * 1.6, s)); }
+  function clampS(s) { return Math.max(V.mode === 'doc' ? 0.02 : 0.12, Math.min(V.mode === 'doc' ? 60 : 60, s)); }   // vector PDF: the visible part is re-rendered at screen resolution, so deep zoom stays sharp
   function centerAt(s) {
     V.viewScale = clampS(s);
     var cw = V.container.clientWidth, ch = V.container.clientHeight;
@@ -139,7 +139,7 @@ var Viewer = (function () {
   function scheduleRender() {
     if (!V.pdfPage) return;
     clearTimeout(V.renderTimer);
-    V.renderTimer = setTimeout(function () { renderPdf(needScale(), function () { renderTile(); }); }, 220);
+    V.renderTimer = setTimeout(function () { renderPdf(needScale(), function () { renderTile(); }); }, 160);
   }
   /* Sharp view at any zoom: render just the visible part of the vector PDF at the exact screen
      resolution (the whole-sheet canvas is capped by the phone's canvas limits). */
