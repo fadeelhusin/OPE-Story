@@ -219,6 +219,12 @@ var Viewer = (function () {
       var m = V.markers[i], el = kids[i];
       el.style.left = (m.mx * V.viewScale + V.tx) + 'px';
       el.style.top = (m.my * V.viewScale + V.ty) + 'px';
+      var hc = window.Search && Search.colorOf ? Search.colorOf(m.id) : null, hl = el.firstChild;
+      if (hc) {
+        if (!hl) { hl = document.createElement('span'); hl.className = 'hlfill'; el.appendChild(hl); }
+        var ar = (ROOMS[m.id] && +ROOMS[m.id].area) || 12, rad = Math.max(6, Math.sqrt(ar / Math.PI) * 5.0 * V.viewScale);
+        hl.style.width = hl.style.height = (2 * rad) + 'px'; hl.style.background = hc; el.classList.add('hl');
+      } else if (hl) { hl.remove(); el.classList.remove('hl'); }
     }
   }
 

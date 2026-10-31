@@ -1,6 +1,16 @@
 /* Search across rooms and room information: room no./name, finish codes and descriptions, shop drawings, MTS, doors, items. */
 (function () {
-  var IDX = null;
+  var IDX = null, LAST = { ids: [] }, PAL = ['#F2C200', '#00A6D6', '#E0409A', '#33B249', '#F07A1A', '#7A5CFF', '#D7263D', '#1FB5A8'];
+  function sets() { try { return JSON.parse(sessionStorage.getItem('gs_sets') || '[]'); } catch (x) { return []; } }
+  function saveSets(a) { try { sessionStorage.setItem('gs_sets', JSON.stringify(a)); } catch (x) {} MAP = null; chips(); if (window.Viewer && Viewer.draw) Viewer.draw(); }
+  var MAP = null;
+  function map() { if (MAP) return MAP; MAP = {}; sets().forEach(function (st) { st.ids.forEach(function (id) { MAP[id] = st.c; }); }); return MAP; }
+  function chips() {
+    var e = document.getElementById('gs-chips'); if (!e) return; var a = sets();
+    e.innerHTML = a.map(function (st, i) { return '<button class="gs-chip" style="--c:' + st.c + '" onclick="Search.drop(' + i + ')" title="Tap to remove"><i></i>' + esc(st.label) + ' · ' + st.ids.length + ' ✕</button>'; }).join('');
+    e.hidden = !a.length; document.body.classList.toggle('hl-on', a.length > 0);
+  }
+  function labelOf(q, f) { var p = []; if (q) p.push(q); if (f.lv) p.push('L' + f.lv); if (f.pt) p.push('P00' + f.pt); if (f.ty) p.push(f.ty); return p.join(' ') || 'All'; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function norm(s) { return String(s || '').toLowerCase().replace(/[‐-―]/g, '-'); }
   function build() {
@@ -51,7 +61,8 @@
       if (hits[r.k].length < 4 && !hits[r.k].some(function (h) { return h.t === r.t; })) hits[r.k].push(r);
     });
     order.sort(function (a, b) { var ra = hits[a][0].kind === 'Room' ? 0 : 1, rb = hits[b][0].kind === 'Room' ? 0 : 1; return ra - rb || (a < b ? -1 : 1); });
-    var total = order.length;
+    var total = order.length; LAST = { ids: order.slice(), q: q, f: f };
+    var cb = document.getElementById('gs-color'); if (cb) cb.disabled = !total;
     out.innerHTML = '<div class="small">' + total + ' room' + (total === 1 ? '' : 's') + (total > 60 ? ' – showing 60' : '') + '</div>' + order.slice(0, 60).map(function (k) {
       var d = ROOMS[k] || {}, r = (window.REGISTER_DATA || {})[k];
       return '<div class="gs-it"><a href="#/room/' + encodeURIComponent(k) + '"><b>' + esc(k) + '</b> ' + esc((r && r.ifc.n) || d.name || '') + ' <span class="small">L' + esc(d.baseLevel || '') + '</span></a>' +
@@ -68,6 +79,8 @@
         '<div class="gs-fl"><select id="gs-lv" aria-label="Level"><option value="">All levels</option>' + lv + '</select>' +
         '<select id="gs-pt" aria-label="Part"><option value="">All parts</option><option value="4">Part 004</option><option value="5">Part 005</option></select>' +
         '<select id="gs-ty" aria-label="Room type"><option value="">All rooms</option>' + types().map(function (t) { return '<option>' + t + '</option>'; }).join('') + '</select></div>' +
+        '<div class="gs-act"><button id="gs-color" class="btn ghost" onclick="Search.paint()" disabled>🎨 Colour these rooms on the plans</button></div>' +
+        '<div id="gs-chips" class="gs-chips" hidden></div>' +
         '<div id="gs-out" class="gs-out" hidden></div></div>';
     },
     mountBar: function () {
@@ -75,8 +88,18 @@
       try { var st = JSON.parse(sessionStorage.getItem('gs_st') || '{}'); q.value = st.q || ''; ['lv', 'pt', 'ty'].forEach(function (k) { if (st[k]) document.getElementById('gs-' + k).value = st[k]; }); } catch (x) {}
       var go = function () { clearTimeout(t); t = setTimeout(function () { var f = filt(); try { sessionStorage.setItem('gs_st', JSON.stringify({ q: q.value, lv: f.lv, pt: f.pt, ty: f.ty })); } catch (x) {} run(q.value); }, 150); };
       q.addEventListener('input', go); ['gs-lv', 'gs-pt', 'gs-ty'].forEach(function (id) { document.getElementById(id).addEventListener('change', go); });
-      run(q.value);
+      run(q.value); chips();
+      q.addEventListener('focus', function () { run(q.value); });
+      document.addEventListener('click', function (e) { var o = document.getElementById('gs-out'); if (o && !e.target.closest('.gs-bar')) o.hidden = true; });
     },
+    paint: function () {
+      if (!LAST.ids.length) return; var a = sets();
+      var used = a.map(function (x) { return x.c; }), c = PAL.filter(function (p) { return used.indexOf(p) < 0; })[0] || PAL[a.length % PAL.length];
+      a.push({ label: labelOf(LAST.q, LAST.f), c: c, ids: LAST.ids.slice(0, 2000) }); saveSets(a);
+      var q = document.getElementById('gs-q'); if (q) q.blur(); setTimeout(function () { var o = document.getElementById('gs-out'); if (o) o.hidden = true; }, 200);
+    },
+    drop: function (i) { var a = sets(); a.splice(i, 1); saveSets(a); },
+    colorOf: function (id) { return map()[id] || null; },
     open: function () {
       var m = document.getElementById('gs-modal'); if (m) m.remove();
       document.body.insertAdjacentHTML('beforeend', '<div id="gs-modal" class="sn-modal" role="dialog" aria-modal="true" aria-label="Search"><div class="sn-box gs-box">' +
