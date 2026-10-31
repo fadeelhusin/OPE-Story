@@ -49,7 +49,7 @@
 
   window.openPlanBrowse = function (level) {
     if (LEVELS.indexOf(level) < 0) level = LEVELS[0];
-    var h = '<button class="btn ghost rp-search" onclick="Search.open()">🔍 Search rooms, codes, SD, MTS, doors…</button><div class="levelpicker">';
+    var h = (window.Search ? Search.bar(level) : '') + '<div class="levelpicker">';
     LEVELS.forEach(function (l) { h += '<button class="' + (l === level ? 'active' : '') + '" onclick="location.hash=\'#/plan/' + l + '\'">Level ' + l + '</button>'; });
     h += '</div>';
     h += '<div class="planwrap" id="pvb"><canvas></canvas><div class="dotlayer" style="position:absolute;inset:0;pointer-events:none"></div>' +
@@ -57,6 +57,7 @@
     h += '<p class="small rp-hint">Tap a room point to open the room.</p>';
     app.innerHTML = h;
     document.querySelector('#pvb .dotlayer').style.pointerEvents = 'auto';
+    if (window.Search) Search.mountBar();
     Viewer.openBrowse(level, 'pvb', function (roomId) { location.hash = '#/room/' + encodeURIComponent(roomId); });
   };
 
