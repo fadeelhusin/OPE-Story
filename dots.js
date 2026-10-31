@@ -13,3 +13,25 @@ var EXTRA_NAMES={"4.B2.SUP.01":"Chemical Store 4.B2.CAT.01 Linen Store","3.00.TE
     if (!r.pos) { var b = r.posL[r.baseLevel] ? r.baseLevel : lv[0]; r.baseLevel = b; r.pos = [b, r.posL[b][0], r.posL[b][1]]; }
   });
 })();
+/* Shafts run continuously: a point on every level from the level in the shaft number up to the highest level it is shown on. */
+(function () {
+  var RM = (window.ROOMS && Object.keys(ROOMS).length) ? ROOMS : window.ROOMS_DATA; if (!RM) return;
+  var ORDER = ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'];
+  Object.keys(RM).forEach(function (id) {
+    var p = id.split('.'); if (p[2] !== 'SHA') return;
+    var r = RM[id], L = {}; if (r.posL) Object.keys(r.posL).forEach(function (l) { L[l] = r.posL[l]; });
+    if (r.pos && !L[r.baseLevel] && ORDER.indexOf(r.baseLevel) >= 0) L[r.baseLevel] = [r.pos[1], r.pos[2]];
+    var known = Object.keys(L).filter(function (l) { return ORDER.indexOf(l) >= 0; });
+    if (!known.length) return;
+    var idx = known.map(function (l) { return ORDER.indexOf(l); });
+    var from = ORDER.indexOf(p[1]); if (from < 0) from = Math.min.apply(null, idx); from = Math.min(from, Math.min.apply(null, idx));
+    var to = Math.max.apply(null, idx);
+    for (var i = from; i <= to; i++) {
+      var l = ORDER[i]; if (L[l]) continue;
+      var best = null, bd = 99; idx.forEach(function (j) { if (Math.abs(j - i) < bd) { bd = Math.abs(j - i); best = ORDER[j]; } });
+      L[l] = L[best];
+    }
+    r.posL = L; r.levels = ORDER.slice(from, to + 1);
+  });
+})();
+
