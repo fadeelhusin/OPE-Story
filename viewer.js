@@ -209,10 +209,10 @@ var Viewer = (function () {
     return '';
   }
   function drawShaftLegend(ctx) {
-    var items = [['#007FFF', 'Mechanical riser'], ['#2E9E3E', 'Electrical riser'], ['#BF00FF', 'Pressurisation shaft'], ['#FF0000', 'MEP shaft (combined)'], ['#111111', 'Stairs', 1], ['#FF7A00', 'Lifts', 1]];
-    var s = V.viewScale, X = 0.7 * V.vw * s + V.tx, Y = 0.705 * V.vh * s + V.ty, W = 0.142 * V.vw * s, H = 0.197 * V.vh * s;
+    var items = [['#007FFF', 'Mechanical riser'], ['#2E9E3E', 'Electrical riser'], ['#BF00FF', 'Pressurisation shaft'], ['#FF0000', 'MEP shaft (combined)'], ['#8A8F95', 'Shaft – type not given'], ['#111111', 'Stairs', 1], ['#FF7A00', 'Lifts', 1]];
+    var s = V.viewScale, X = 0.7 * V.vw * s + V.tx, Y = 0.678 * V.vh * s + V.ty, W = 0.142 * V.vw * s, H = 0.224 * V.vh * s;
     if (W < 24) return;
-    var u = H / 9.9;
+    var u = H / 11.25;
     ctx.save();
     ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.strokeStyle = '#333'; ctx.lineWidth = Math.max(0.5, u * 0.05);
     ctx.fillRect(X, Y, W, H); ctx.strokeRect(X, Y, W, H);
