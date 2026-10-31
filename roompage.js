@@ -8,8 +8,19 @@
   }
   function lnk(t, u) { return u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(t) + '</a>' : esc(t); }
   var LIB = window.FINISH_LIB || {};
+  function tqBlock(r) {
+    var T = window.REGISTER_TQ || {}, L = r.tq || [];
+    if (!L.length) return '';
+    return '<h2 class="sec">Technical queries &amp; instructions</h2><div class="rp-list">' + L.map(function (x) {
+      var t = T[x[0]] || {}, ans = t.h || t.r || '';
+      return '<div class="card rp-tq"><div class="rp-tq-h">' + lnk(x[0], t.u) + ' <span class="rp-tq-st st-' + esc((t.st || '').split(' ')[0].toLowerCase()) + '">' + esc(t.st || '') + '</span>' + (t.dis ? ' <span class="small">' + esc(t.dis) + '</span>' : '') + '</div>' +
+        '<div class="rp-tq-s">' + esc(t.s || '') + '</div><div class="rp-tq-why">' + esc(x[1]) + '</div>' +
+        (ans ? '<div class="rp-tq-r"><b>Reply:</b> ' + esc(ans) + '</div>' : '') +
+        (t.d ? '<details class="small"><summary>Query</summary>' + esc(t.d) + '</details>' : '') + '</div>';
+    }).join('') + '</div>';
+  }
   function finBlock(label, ifc, ids, k, part) {
-    var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span>' + (ifc ? '<span class="small">' + esc(ifc) + '</span>' : '') + '</div>';
+    var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span>' + (ifc ? (/^As similar function finishing/.test(ifc) ? '<span class="rp-sim">As similar function finishing</span><span class="small">' + esc(ifc.replace(/^As similar function finishing – /, '')) + '</span>' : /^TQ-/.test(ifc) ? '<span class="rp-tqsrc">' + esc(ifc) + '</span>' : '<span class="small">' + esc(ifc) + '</span>') : '') + '</div>';
     (ids || []).forEach(function (id) {
       var f = LIB[id]; if (!f) return;
       h += '<div class="rp-sys"><div class="rp-sys-t"><b>' + esc(f.code) + '</b> ' + esc(f.t) + '</div>';
@@ -79,6 +90,7 @@
     if (r) {
       h += '<div class="rp-scope"><span>Sub-contractor</span><b>' + esc(r.sc) + '</b></div>';
       h += '<h2 class="sec">Finishes – approved materials &amp; build-up</h2>' + finBlock('Walls', r.ifc.w, r.fx && r.fx.w, k, 'w') + finBlock('Floor', r.ifc.f, r.fx && r.fx.f, k, 'f') + finBlock('Ceiling', r.ifc.c, r.fx && r.fx.c, k, 'c');
+      h += tqBlock(r);
       if (r.dr.length) {
         h += '<h2 class="sec">Doors</h2><div class="rp-list">';
         r.dr.forEach(function (x) { h += '<div class="card rp-item"><b>' + esc(x.tag) + ' · ' + esc(x.type) + '</b><span>' + esc([x.fire, x.ac, x.size, x.th].filter(Boolean).join(' · ')) + '</span>' + (x.fin ? '<span class="small">' + esc(x.fin) + '</span>' : '') + (x.hw ? '<span class="small">' + esc(x.hw) + '</span>' : '') + '</div>'; });

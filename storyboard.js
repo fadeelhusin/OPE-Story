@@ -26,6 +26,7 @@
     var mOk = mts.length && mts.every(function (m) { return /^Approved/.test(m.s); });
     var act = [];
     if (gap) act.push('Raise RFI – finish not on drawings or Room Finishes Schedule');
+    if (/^As similar function finishing/.test(r.ifc[part] || '')) act.push('Confirm with the consultant – finish taken as similar function');
     if (!sds.length) act.push('Submit shop drawing');
     sds.forEach(function (s) { if (/^[EGD]/.test(s.c)) act.push('Resubmit ' + s.no + ' (' + s.c + ')'); });
     mts.forEach(function (m) { if (!/^Approved/.test(m.s)) act.push('Get ' + m.c + ' approved'); });
@@ -60,6 +61,8 @@
     if (r.it.length) h += '<section><h2>Furniture, equipment &amp; fit-out</h2><div class="sbtbl"><table><tbody>' + r.it.map(function (x) { return '<tr><th>' + esc(x.tag) + '</th><td>' + esc(x.pk) + ' – ' + esc(x.d) + (x.f ? '<div class="sbs">' + esc(x.f) + '</div>' : '') + '</td><td class="sbs">' + esc(x.mts) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
     if (r.mt.length) h += '<section><h2>Materials (MTS)</h2><div class="sbtbl"><table><tbody>' + r.mt.map(function (m) { return '<tr><th>' + lnk(m.c, m.u) + '</th><td>' + esc(m.m) + (m.p ? ' – ' + esc(m.p) : '') + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
     var acts = []; rows.forEach(function (x, i) { x.act.forEach(function (a) { acts.push(['Walls', 'Floor', 'Ceiling'][i] + ': ' + a); }); });
+    var TQ = window.REGISTER_TQ || {};
+    if (r.tq && r.tq.length) h += '<section><h2>Technical queries &amp; instructions</h2><div class="sbtbl"><table><thead><tr><th>TQ</th><th>Subject / why it applies</th><th>Status</th><th>Reply</th></tr></thead><tbody>' + r.tq.map(function (x) { var t = TQ[x[0]] || {}; return '<tr><th>' + lnk(x[0], t.u) + '</th><td>' + esc(t.s || '') + '<div class="sbs">' + esc(x[1]) + '</div></td><td>' + esc(t.st || '') + '</td><td class="sbs">' + esc((t.h || t.r || '').slice(0, 300)) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
     h += '<section><h2>Open actions</h2>' + (acts.length ? '<ol class="sbacts">' + acts.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ol>' : '<div class="sbs">None.</div>') + '</section>';
     h += '<section id="sbai"></section>';
     h += '<footer class="sbs">Sources: JOH Finishes Register (Parts 001–005) · IFC Room Finishes Schedule AR-010560 · Opera House_Archive (SharePoint) · ' + now + '</footer></div>';

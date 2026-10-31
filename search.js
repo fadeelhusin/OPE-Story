@@ -31,6 +31,7 @@
       (r.sd || []).forEach(function (x) { rows.push({ k: k, kind: 'Shop drawing', t: x.no + (x.c ? ' (' + x.c + ')' : '') + ' – ' + x.t, s: norm(x.no + ' ' + x.no.replace(/^\w+-/, '') + ' ' + x.t + ' code ' + x.c), u: x.u }); });
       (r.dr || []).forEach(function (x) { rows.push({ k: k, kind: 'Door', t: x.tag + ' – ' + [x.type, x.fire, x.ac, x.size].filter(Boolean).join(' · '), s: norm(x.tag + ' ' + x.type + ' ' + x.fire + ' ' + x.ac + ' ' + x.size + ' ' + x.fin + ' ' + x.hw) }); });
       (r.it || []).forEach(function (x) { rows.push({ k: k, kind: x.pk, t: x.tag + ' – ' + x.d, s: norm(x.tag + ' ' + x.pk + ' ' + x.d + ' ' + x.f + ' ' + x.mts) }); });
+      (r.tq || []).forEach(function (x) { var t = (window.REGISTER_TQ || {})[x[0]] || {}; rows.push({ k: k, kind: 'TQ', t: x[0] + ' – ' + (t.s || ''), s: norm(x[0] + ' ' + x[0].replace('TQ-', '') + ' ' + t.s + ' ' + (t.h || '') + ' ' + (t.r || '')), u: t.u }); });
       (r.mt || []).forEach(function (x) { rows.push({ k: k, kind: 'Material', t: x.c + ' – ' + x.m, s: norm(x.c + ' ' + x.m + ' ' + x.p), u: x.u }); });
     });
     return rows;
@@ -75,7 +76,7 @@
   window.Search = {
     bar: function (level) {
       var lv = (window.LEVELS || ['00', '01', '02', '03', '04', '05', '06']).map(function (l) { return '<option value="' + l + '">L' + l + '</option>'; }).join('');
-      return '<div class="gs-bar"><input id="gs-q" type="search" placeholder="🔍 Room, name, code, SD, MTS, door…" autocomplete="off">' +
+      return '<div class="gs-bar"><input id="gs-q" type="search" placeholder="🔍 Room, name, code, SD, MTS, TQ, door…" autocomplete="off">' +
         '<div class="gs-fl"><select id="gs-lv" aria-label="Level"><option value="">All levels</option>' + lv + '</select>' +
         '<select id="gs-pt" aria-label="Part"><option value="">All parts</option><option value="1">Part 001</option><option value="2">Part 002</option><option value="3">Part 003</option><option value="4">Part 004</option><option value="5">Part 005</option></select>' +
         '<select id="gs-ty" aria-label="Room type"><option value="">All rooms</option>' + types().map(function (t) { return '<option>' + t + '</option>'; }).join('') + '</select></div>' +
