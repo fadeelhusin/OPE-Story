@@ -528,3 +528,8 @@ nav#tabbar[hidden]{display:none!important}
 .sn-box>*{flex-shrink:0}
 .sn-box textarea{min-height:4.8em;line-height:1.4}
 .sn-box .rp-snap img{max-height:40vh;width:100%;object-fit:cover;object-position:top}
+
+.rp-topbtns .rp-notebtn{padding:10px 12px}
+.gs-box{max-height:88vh}.gs-box .sn-head input{flex:1;min-width:0;border:1px solid var(--line-strong);border-radius:var(--radius);padding:10px;font:inherit;font-size:16px}
+#gs-out{display:flex;flex-direction:column;gap:8px}.gs-it{border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;background:#fff}
+.gs-it>a{text-decoration:none;color:inherit;display:block}.gs-hit{font-size:13px;margin-top:4px;overflow-wrap:anywhere}.gs-kind{display:inline-block;font-size:11px;padding:1px 6px;border-radius:99px;background:#EFE9DC;color:#5A4A2A;margin-right:4px}
