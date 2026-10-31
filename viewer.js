@@ -178,6 +178,7 @@ var Viewer = (function () {
         ctx.setTransform(V.dpr, 0, 0, V.dpr, 0, 0);
       }
     }
+    if (V.mode !== 'doc') drawShaftLegend(ctx);
     if ((V.mode === 'room' || (V.mode === 'doc' && V.mx != null)) && V.mk) {
       V.mk.style.display = 'block';
       V.mk.style.left = (V.mx * V.viewScale + V.tx) + 'px'; V.mk.style.top = (V.my * V.viewScale + V.ty) + 'px';
@@ -197,6 +198,27 @@ var Viewer = (function () {
         ac.style.left = (V.tmp[0] * V.vw * V.viewScale + V.tx - rp) + 'px'; ac.style.top = (V.tmp[1] * V.vh * V.viewScale + V.ty - rp) + 'px';
       } else if (ac) ac.style.display = 'none';
     }
+  }
+
+  /* shafts legend drawn on the sheet itself, in the free space left of the title block */
+  function drawShaftLegend(ctx) {
+    var items = [['#007FFF', 'Mechanical riser'], ['#2E9E3E', 'Electrical riser'], ['#BF00FF', 'Pressurisation shaft'], ['#FF0000', 'MEP shaft (combined)']];
+    var s = V.viewScale, X = 0.708 * V.vw * s + V.tx, Y = 0.752 * V.vh * s + V.ty, W = 0.13 * V.vw * s, H = 0.15 * V.vh * s;
+    if (W < 24) return;
+    var u = H / 7.2;
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.strokeStyle = '#333'; ctx.lineWidth = Math.max(0.5, u * 0.05);
+    ctx.fillRect(X, Y, W, H); ctx.strokeRect(X, Y, W, H);
+    ctx.fillStyle = '#111'; ctx.textBaseline = 'middle';
+    ctx.font = 'bold ' + (u * 0.75).toFixed(2) + 'px Arial'; ctx.fillText('SHAFTS & RISERS LEGEND', X + u * 0.6, Y + u * 0.9);
+    ctx.font = (u * 0.7).toFixed(2) + 'px Arial';
+    items.forEach(function (it, i) {
+      var yy = Y + u * (2.3 + i * 1.35);
+      ctx.fillStyle = it[0]; ctx.fillRect(X + u * 0.6, yy - u * 0.42, u * 0.84, u * 0.84);
+      ctx.strokeStyle = '#333'; ctx.strokeRect(X + u * 0.6, yy - u * 0.42, u * 0.84, u * 0.84);
+      ctx.fillStyle = '#111'; ctx.fillText(it[1], X + u * 1.8, yy);
+    });
+    ctx.restore();
   }
 
   function drawMarkerDots() {
