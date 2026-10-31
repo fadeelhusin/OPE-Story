@@ -558,3 +558,7 @@ nav#tabbar[hidden]{display:none!important}
 
 .mkdot.shaft,.mkdot.shaft.stale{background:var(--sc)!important;border-radius:2px;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid #fff!important;box-shadow:0 0 0 1px rgba(0,0,0,.35)!important}
 .hl-on .mkdot.shaft{opacity:.6}
+
+.shleg{position:absolute;left:8px;bottom:36px;z-index:6;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.15);border-radius:8px;padding:6px 8px;font-size:11px;line-height:1.35;display:flex;flex-direction:column;gap:2px;pointer-events:none;color:#1E2A33}
+.shleg b{font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.shleg span{display:flex;align-items:center;gap:6px}.shleg i{width:10px;height:10px;border-radius:2px;border:1px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.3)}

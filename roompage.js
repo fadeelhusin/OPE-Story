@@ -53,7 +53,7 @@
     LEVELS.forEach(function (l) { h += '<button class="' + (l === level ? 'active' : '') + '" onclick="location.hash=\'#/plan/' + l + '\'">Level ' + l + '</button>'; });
     h += '</div>';
     h += '<div class="planwrap" id="pvb"><canvas></canvas><div class="dotlayer" style="position:absolute;inset:0;pointer-events:none"></div>' +
-      '<div id="pvlvl">LEVEL ' + esc(level) + '</div><div class="pvstat-el" id="pvstat"></div></div>';
+      '<div id="pvlvl">LEVEL ' + esc(level) + '</div><div class="pvstat-el" id="pvstat"></div>' + '<div class="shleg" aria-label="Shafts legend"><b>Shafts</b><span><i style="background:#007FFF"></i>Mechanical riser</span><span><i style="background:#2E9E3E"></i>Electrical riser</span><span><i style="background:#BF00FF"></i>Pressurisation shaft</span><span><i style="background:#FF0000"></i>MEP shaft (combined)</span></div>' + '</div>';
     h += '<p class="small rp-hint">Tap a room point to open the room.</p>';
     app.innerHTML = h;
     document.querySelector('#pvb .dotlayer').style.pointerEvents = 'auto';
@@ -72,7 +72,7 @@
       '<button class="btn brass rp-stbtn" onclick="location.hash=\'#/story/' + esc(k) + '\'">Status</button></div></div>';
     h += '<div class="hero small-hero rp-plan">';
     if (d.pos) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(d.baseLevel) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
-      '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
+      '<div class="shleg" aria-label="Shafts legend"><b>Shafts</b><span><i style="background:#007FFF"></i>Mechanical riser</span><span><i style="background:#2E9E3E"></i>Electrical riser</span><span><i style="background:#BF00FF"></i>Pressurisation shaft</span><span><i style="background:#FF0000"></i>MEP shaft (combined)</span></div>' + '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
     else h += '<div class="frame rp-noloc">Location not yet mapped on the Level ' + esc(d.baseLevel) + ' plan.</div>';
     h += '</div>';
 
