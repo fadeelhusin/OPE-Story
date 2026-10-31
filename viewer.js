@@ -210,6 +210,7 @@ var Viewer = (function () {
         var el = document.createElement('div');
         el.className = 'mkdot' + (ROOMS[m.id] && ROOMS[m.id].custom ? ' custom' : '') + (window.Site ? ' ' + Site.pinClass(m.id) : '') + (window.RoomStatus ? ' ' + RoomStatus.pinClass(m.id) : '');
         el.dataset.id = m.id;
+        var shc = window.shaftColor && shaftColor(m.id); if (shc) { el.classList.add('shaft'); el.style.setProperty('--sc', shc); }
         el.title = m.id;
         el.onclick = function (ev) { ev.stopPropagation(); if (V.onPick) V.onPick(m.id); };
         layer.appendChild(el);

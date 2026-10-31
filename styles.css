@@ -555,3 +555,6 @@ nav#tabbar[hidden]{display:none!important}
 .hl-on .mkdot.stale{background:var(--brass)!important;box-shadow:0 1px 3px rgba(0,0,0,.4)!important}
 .hl-on .mkdot.hl{opacity:1;transform:none;background:rgba(255,255,255,.85)!important;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border:1px solid #333!important;box-shadow:none!important}
 .hl-on .mkdot.hl .hlfill{opacity:.45}
+
+.mkdot.shaft,.mkdot.shaft.stale{background:var(--sc)!important;border-radius:2px;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid #fff!important;box-shadow:0 0 0 1px rgba(0,0,0,.35)!important}
+.hl-on .mkdot.shaft{opacity:.6}
