@@ -316,6 +316,7 @@ var Viewer = (function () {
         });
         var pickPx = bestD * V.viewScale;
         if (best && pickPx < (V.mode === 'room' ? 22 : 46)) V.onPick(best.id);
+        else if (V.mode === 'room') { var dl = pv.querySelector('.dotlayer'); if (dl) dl.classList.toggle('mini'); }
       }
     };
     pv.onpointerup = up; pv.onpointercancel = up;
