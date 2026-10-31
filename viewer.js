@@ -191,7 +191,7 @@ var Viewer = (function () {
         ctx.setTransform(V.dpr, 0, 0, V.dpr, 0, 0);
       }
     }
-    if (V.mode !== 'doc') drawShaftLegend(ctx);
+    if (V.mode !== 'doc') { drawWalls(ctx); drawShaftLegend(ctx); }
     if ((V.mode === 'room' || (V.mode === 'doc' && V.mx != null)) && V.mk) {
       V.mk.style.display = 'block';
       V.mk.style.left = (V.mx * V.viewScale + V.tx) + 'px'; V.mk.style.top = (V.my * V.viewScale + V.ty) + 'px';
@@ -222,16 +222,35 @@ var Viewer = (function () {
     if (/stair|ramp|escalator/.test(n)) return 'stair';
     return '';
   }
+  var WALLC = { concrete: '#7A7A7A', block: '#EBA46A', drywall: '#F2DC6B', glass: '#79CDEF', cladding: '#B98E63' };
+  function drawWalls(ctx) {
+    var L = window.WALLS_DATA && WALLS_DATA[V.lvl];
+    if (!L || window.WALLS_OFF) return;
+    var s = V.viewScale;
+    ctx.save(); ctx.globalAlpha = 0.72; ctx.globalCompositeOperation = 'multiply';
+    ['concrete', 'block', 'drywall', 'cladding', 'glass'].forEach(function (t) {
+      ctx.fillStyle = WALLC[t]; ctx.beginPath();
+      for (var i = 0; i < L.length; i++) {
+        if (L[i][0] !== t) continue;
+        var p = L[i][1];
+        ctx.moveTo(p[0] * s + V.tx, p[1] * s + V.ty);
+        for (var j = 2; j < p.length; j += 2) ctx.lineTo(p[j] * s + V.tx, p[j + 1] * s + V.ty);
+        ctx.closePath();
+      }
+      ctx.fill('evenodd');
+    });
+    ctx.restore();
+  }
   function drawShaftLegend(ctx) {
     var items = [['#007FFF', 'Mechanical riser'], ['#2E9E3E', 'Electrical riser'], ['#BF00FF', 'Pressurisation shaft'], ['#FF0000', 'MEP shaft (combined)'], ['#8A8F95', 'Shaft – type not given'], ['#111111', 'Stairs', 1], ['#FF7A00', 'Lifts', 1]];
-    var s = V.viewScale, X = 0.7 * V.vw * s + V.tx, Y = 0.678 * V.vh * s + V.ty, W = 0.142 * V.vw * s, H = 0.224 * V.vh * s;
+    if (window.WALLS_DATA && WALLS_DATA[V.lvl] && !window.WALLS_OFF) items = items.concat([[WALLC.concrete, 'Wall – concrete'], [WALLC.block, 'Wall – blockwork'], [WALLC.drywall, 'Wall – drywall'], [WALLC.glass, 'Wall – glass'], [WALLC.cladding, 'Wall – cladding / lining']]);
+    var s = V.viewScale, W = 0.142 * V.vw * s, u = 0.224 * V.vh * s / 11.25, H = u * (2.3 + items.length * 1.35 - 0.4), X = 0.7 * V.vw * s + V.tx, Y = (0.678 + 0.224) * V.vh * s + V.ty - H;
     if (W < 24) return;
-    var u = H / 11.25;
     ctx.save();
     ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.strokeStyle = '#333'; ctx.lineWidth = Math.max(0.5, u * 0.05);
     ctx.fillRect(X, Y, W, H); ctx.strokeRect(X, Y, W, H);
     ctx.fillStyle = '#111'; ctx.textBaseline = 'middle';
-    ctx.font = 'bold ' + (u * 0.75).toFixed(2) + 'px Arial'; ctx.fillText('SHAFTS, STAIRS & LIFTS', X + u * 0.6, Y + u * 0.9);
+    ctx.font = 'bold ' + (u * 0.75).toFixed(2) + 'px Arial'; ctx.fillText(items.length > 7 ? 'SHAFTS, STAIRS, LIFTS & WALLS' : 'SHAFTS, STAIRS & LIFTS', X + u * 0.6, Y + u * 0.9);
     ctx.font = (u * 0.7).toFixed(2) + 'px Arial';
     items.forEach(function (it, i) {
       var yy = Y + u * (2.3 + i * 1.35);
