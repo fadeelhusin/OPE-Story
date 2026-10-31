@@ -577,3 +577,10 @@ nav#tabbar[hidden]{display:none!important}
 .rp-tq-why{font-size:.8em;color:#6b6b6b;margin-bottom:4px}
 .rp-tq-r{font-size:.88em;line-height:1.4}
 .rp-tq details{margin-top:4px}
+
+.rp-lvls{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.rp-lvls button{border:1px solid #c9c2b0;background:transparent;border-radius:8px;padding:2px 8px;font-size:.78em;color:inherit;cursor:pointer}
+.rp-lvls button.on{background:#8a6d3b;color:#fff;border-color:#8a6d3b}
+.rp-tq-g{font-size:.78em;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a6d3b;margin:10px 2px 4px}
+.rp-tq-lv{font-size:.72em;background:#efe9dc;color:#5d4a26;border-radius:8px;padding:1px 6px}
+.rp-tq-other summary{cursor:pointer;font-size:.85em;margin:8px 2px}

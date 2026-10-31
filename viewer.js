@@ -23,13 +23,14 @@ var Viewer = (function () {
 
   function setStat(s) { if (V.stat) V.stat.textContent = s; }
 
-  function openRoom(k, containerId) {
-    var d = ROOMS[k]; if (!d || !d.pos) return;
-    V.mode = 'room'; V.room = k; V.lvl = d.baseLevel; V.tile = null; V.src = null; V.pdfPage = null; V.pdfCanvas = null; V.pdfScale = 0;
+  function openRoom(k, containerId, lv) {
+    var d = ROOMS[k]; if (!d) return;
+    var at = lv && d.posL && d.posL[lv] ? [lv, d.posL[lv][0], d.posL[lv][1]] : d.pos; if (!at) return;
+    V.mode = 'room'; V.room = k; V.lvl = at[0]; V.tile = null; V.src = null; V.pdfPage = null; V.pdfCanvas = null; V.pdfScale = 0;
     var dim = META.dims[V.lvl];
     V.dpr = window.devicePixelRatio || 1;
     V.vw = 1191; V.vh = 842;
-    var p = d.pos; V.mx = p[1] * V.vw; V.my = p[2] * V.vh;
+    var p = at; V.mx = p[1] * V.vw; V.my = p[2] * V.vh;
     setupCanvas(containerId);
     V.maxScale = Math.min(Math.sqrt(14.0e6 / (V.vw * V.vh)), 4000 / V.vw, 4000 / V.vh);
     loadPng(V.lvl);

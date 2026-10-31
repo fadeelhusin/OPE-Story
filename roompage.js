@@ -8,16 +8,24 @@
   }
   function lnk(t, u) { return u ? '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(t) + '</a>' : esc(t); }
   var LIB = window.FINISH_LIB || {};
-  function tqBlock(r) {
+  function tqCard(x, T) {
+    var t = T[x[0]] || {}, ans = t.h || t.r || '';
+    return '<div class="card rp-tq"><div class="rp-tq-h">' + lnk(x[0], t.u) + ' <span class="rp-tq-st st-' + esc((t.st || '').split(' ')[0].toLowerCase()) + '">' + esc(t.st || '') + '</span>' + (t.dis ? ' <span class="small">' + esc(t.dis) + '</span>' : '') +
+      ((t.lv || []).length ? ' <span class="rp-tq-lv">' + t.lv.map(function (l) { return 'L' + esc(l); }).join(' ') + '</span>' : '') + '</div>' +
+      '<div class="rp-tq-s">' + esc(t.s || '') + '</div><div class="rp-tq-why">' + esc(x[1]) + '</div>' +
+      (ans ? '<div class="rp-tq-r"><b>Reply:</b> ' + esc(ans) + '</div>' : '') +
+      (t.d ? '<details class="small"><summary>Query</summary>' + esc(t.d) + '</details>' : '') + '</div>';
+  }
+  function tqBlock(r, lv) {
     var T = window.REGISTER_TQ || {}, L = r.tq || [];
     if (!L.length) return '';
-    return '<h2 class="sec">Technical queries &amp; instructions</h2><div class="rp-list">' + L.map(function (x) {
-      var t = T[x[0]] || {}, ans = t.h || t.r || '';
-      return '<div class="card rp-tq"><div class="rp-tq-h">' + lnk(x[0], t.u) + ' <span class="rp-tq-st st-' + esc((t.st || '').split(' ')[0].toLowerCase()) + '">' + esc(t.st || '') + '</span>' + (t.dis ? ' <span class="small">' + esc(t.dis) + '</span>' : '') + '</div>' +
-        '<div class="rp-tq-s">' + esc(t.s || '') + '</div><div class="rp-tq-why">' + esc(x[1]) + '</div>' +
-        (ans ? '<div class="rp-tq-r"><b>Reply:</b> ' + esc(ans) + '</div>' : '') +
-        (t.d ? '<details class="small"><summary>Query</summary>' + esc(t.d) + '</details>' : '') + '</div>';
-    }).join('') + '</div>';
+    var here = [], all = [], other = [];
+    L.forEach(function (x) { var l = (T[x[0]] || {}).lv || []; if (/^Applied to this room/.test(x[1]) || (lv && l.indexOf(lv) >= 0)) here.push(x); else if (!l.length || !lv) all.push(x); else other.push(x); });
+    var h = '<h2 class="sec">Technical queries &amp; instructions</h2>';
+    if (here.length) h += '<div class="rp-tq-g">Level ' + esc(lv) + '</div><div class="rp-list">' + here.map(function (x) { return tqCard(x, T); }).join('') + '</div>';
+    if (all.length) h += '<div class="rp-tq-g">' + (here.length ? 'All levels / no level given' : 'Technical queries') + '</div><div class="rp-list">' + all.map(function (x) { return tqCard(x, T); }).join('') + '</div>';
+    if (other.length) h += '<details class="rp-tq-other"><summary>Other levels (' + other.length + ')</summary><div class="rp-list">' + other.map(function (x) { return tqCard(x, T); }).join('') + '</div></details>';
+    return h;
   }
   function finBlock(label, ifc, ids, k, part) {
     var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span>' + (ifc ? (/^As similar function finishing/.test(ifc) ? '<span class="rp-sim">As similar function finishing</span><span class="small">' + esc(ifc.replace(/^As similar function finishing – /, '')) + '</span>' : /^TQ-/.test(ifc) ? '<span class="rp-tqsrc">' + esc(ifc) + '</span>' : '<span class="small">' + esc(ifc) + '</span>') : '') + '</div>';
@@ -51,7 +59,7 @@
     var parts = h.split('/').filter(Boolean).map(decodeURIComponent);
     window.scrollTo(0, 0);
     if (window.showSearch) showSearch(false);
-    if (parts[0] === 'room' && parts[1]) return openRoom(parts[1]);
+    if (parts[0] === 'room' && parts[1]) return openRoom(parts[1], parts[2] && parts[2].charAt(0) === '@' ? parts[2].slice(1) : null);
     if (parts[0] === 'story' && parts[1] && window.Storyboard) return Storyboard.open(parts[1]);
     var lv = parts[0] === 'plan' && parts[1] ? parts[1] : lastLvl();
     try { localStorage.setItem('joh_last_level', lv); } catch (x) {}
@@ -69,39 +77,45 @@
     app.innerHTML = h;
     document.querySelector('#pvb .dotlayer').style.pointerEvents = 'auto';
     if (window.Search) Search.mountBar();
-    Viewer.openBrowse(level, 'pvb', function (roomId) { location.hash = '#/room/' + encodeURIComponent(roomId); });
+    Viewer.openBrowse(level, 'pvb', function (roomId) { var r = ROOMS[roomId] || {}; location.hash = '#/room/' + encodeURIComponent(roomId) + (r.baseLevel !== level ? '/@' + level : ''); });
   };
 
   /* ---------- room page ---------- */
-  window.openRoom = function (k) {
+  var CURLV = null;
+  function levelsOf(d) { var L = d.posL ? Object.keys(d.posL) : []; if (d.baseLevel && L.indexOf(d.baseLevel) < 0) L.unshift(d.baseLevel); return LEVELS.filter(function (l) { return L.indexOf(l) >= 0; }); }
+  window.openRoom = function (k, lv) {
     var d = ROOMS[k]; if (!d) { app.innerHTML = '<div class="emptystate">Room not found.</div>'; return; }
+    var LVS = levelsOf(d); if (!lv || LVS.indexOf(lv) < 0) lv = d.baseLevel; CURLV = lv;
     var r = REG[k] || null, g = window.Grid && Grid.ofRoom(k);
-    var h = '<div class="rtop"><button class="btn ghost" onclick="location.hash=\'#/plan/' + esc(d.baseLevel) + '\'">←</button>' +
+    var h = '<div class="rtop"><button class="btn ghost" onclick="location.hash=\'#/plan/' + esc(lv) + '\'">←</button>' +
       '<div class="rhead"><div class="rn">' + esc(k) + '</div><div class="rt">' + esc((r && r.ifc.n) || d.name || '') + '</div>' +
-      '<div class="small">Level ' + esc(d.baseLevel) + ' · Part ' + esc(partOf(k)) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + '</div></div>' +
+      '<div class="small">Level ' + esc(lv) + (lv !== d.baseLevel ? ' (from Level ' + esc(d.baseLevel) + ')' : '') + ' · Part ' + esc(partOf(k)) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + '</div>' +
+      (LVS.length > 1 ? '<div class="rp-lvls">' + LVS.map(function (l) { return '<button class="' + (l === lv ? 'on' : '') + '" onclick="location.replace(\'#/room/' + encodeURIComponent(k) + '/@' + l + '\')">' + esc(l) + '</button>'; }).join('') + '</div>' : '') + '</div>' +
       '<div class="rp-topbtns"><button class="btn ghost rp-notebtn" onclick="RoomPage.openNote(\'' + esc(k) + '\')">Note</button>' +
       '<button class="btn brass rp-stbtn" onclick="location.hash=\'#/story/' + esc(k) + '\'">Status</button></div></div>';
     h += '<div class="hero small-hero rp-plan">';
-    if (d.pos) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(d.baseLevel) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
+    if (d.pos || (d.posL && d.posL[lv])) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(lv) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
-    else h += '<div class="frame rp-noloc">Location not yet mapped on the Level ' + esc(d.baseLevel) + ' plan.</div>';
+    else h += '<div class="frame rp-noloc">Location not yet mapped on the Level ' + esc(lv) + ' plan.</div>';
     h += '</div>';
 
     if (r) {
       h += '<div class="rp-scope"><span>Sub-contractor</span><b>' + esc(r.sc) + '</b></div>';
       h += '<h2 class="sec">Finishes – approved materials &amp; build-up</h2>' + finBlock('Walls', r.ifc.w, r.fx && r.fx.w, k, 'w') + finBlock('Floor', r.ifc.f, r.fx && r.fx.f, k, 'f') + finBlock('Ceiling', r.ifc.c, r.fx && r.fx.c, k, 'c');
-      h += tqBlock(r);
+      h += tqBlock(r, lv);
       if (r.dr.length) {
         h += '<h2 class="sec">Doors</h2><div class="rp-list">';
         r.dr.forEach(function (x) { h += '<div class="card rp-item"><b>' + esc(x.tag) + ' · ' + esc(x.type) + '</b><span>' + esc([x.fire, x.ac, x.size, x.th].filter(Boolean).join(' · ')) + '</span>' + (x.fin ? '<span class="small">' + esc(x.fin) + '</span>' : '') + (x.hw ? '<span class="small">' + esc(x.hw) + '</span>' : '') + '</div>'; });
         h += '</div>';
       }
-      h += '<h2 class="sec">Shop drawings &amp; approvals</h2>';
-      if (r.sd.length) {
-        h += '<div class="rp-tbl card"><table><tbody>';
-        r.sd.forEach(function (s) { h += '<tr><td>' + lnk(s.no, s.u) + '<div class="small">' + esc(s.t) + '</div></td><td>' + chip(s.c) + '</td></tr>'; });
-        h += '</tbody></table></div>';
-      } else h += '<div class="card small rp-pad">No shop drawing found in the register for this room.</div>';
+      var sdTbl = function (L) { return '<div class="rp-tbl card"><table><tbody>' + L.map(function (s) { return '<tr><td>' + lnk(s.no, s.u) + '<div class="small">' + esc(s.t) + '</div></td><td>' + chip(s.c) + '</td></tr>'; }).join('') + '</tbody></table></div>'; };
+      var multi = LVS.length > 1, sdHere = lv === d.baseLevel ? r.sd : ((r.sdL || {})[lv] || []);
+      h += '<h2 class="sec">Shop drawings &amp; approvals' + (multi ? ' – Level ' + esc(lv) : '') + '</h2>';
+      h += sdHere.length ? sdTbl(sdHere) : '<div class="card small rp-pad">No shop drawing found in the register for this room' + (multi ? ' at Level ' + esc(lv) : '') + '.</div>';
+      if (multi) {
+        var oth = LVS.filter(function (l) { return l !== lv && (l === d.baseLevel ? r.sd.length : ((r.sdL || {})[l] || []).length); });
+        if (oth.length) h += '<details class="rp-tq-other"><summary>Other levels (' + oth.map(function (l) { return 'L' + l; }).join(', ') + ')</summary>' + oth.map(function (l) { return '<div class="rp-tq-g">Level ' + esc(l) + '</div>' + sdTbl(l === d.baseLevel ? r.sd : r.sdL[l]); }).join('') + '</details>';
+      }
       if (r.it.length) {
         h += '<h2 class="sec">Furniture, equipment &amp; fit-out</h2><div class="rp-list">';
         r.it.forEach(function (x) { h += '<div class="card rp-item"><b>' + esc(x.tag) + ' – ' + esc(x.pk) + '</b><span>' + esc(x.d) + '</span>' + (x.f ? '<span class="small">' + esc(x.f) + '</span>' : '') + (x.mts ? '<span class="small">' + esc(x.mts) + '</span>' : '') + '</div>'; });
@@ -121,7 +135,7 @@
     h += '<button class="btn ghost rp-status" onclick="location.hash=\'#/story/' + esc(k) + '\'">📊 Status – room storyboard</button>' +
       '<button class="btn ghost rp-status" style="margin-top:-14px" onclick="askClaude(\'' + esc(k) + '\')">Ask in the project chat</button>';
     app.innerHTML = h;
-    if (d.pos) Viewer.openRoom(k, 'pv');
+    if (d.pos || (d.posL && d.posL[lv])) Viewer.openRoom(k, 'pv', lv);
     SNAP = null; ADDED = [];
     if (window.RoomStatus && !window.Cloud) RoomStatus.mount(k);
     try { localStorage.setItem('joh_cur_room', JSON.stringify({ id: k, t: Date.now() })); } catch (x) {}
@@ -131,7 +145,7 @@
   function waText(k, note) {
     var d = ROOMS[k] || {}, r = REG[k], g = window.Grid && Grid.ofRoom(k), L = [];
     L.push('#OPE ' + k + ' | ' + ((r && r.ifc.n) || d.name || ''));
-    L.push('Level ' + (d.baseLevel || '') + ' · Part ' + partOf(k) + (g ? ' · Grid ' + g.text : ''));
+    L.push('Level ' + (CURLV || d.baseLevel || '') + ' · Part ' + partOf(k) + (g ? ' · Grid ' + g.text : ''));
     if (r && r.sc) L.push('Sub-contractor: ' + r.sc);
     if (note) { L.push(''); L.push(note); }
     return L.join('\n');
@@ -145,7 +159,7 @@
     x.fillStyle = '#fff'; x.font = 'bold ' + Math.round(26 * sc) + 'px Arial'; x.textBaseline = 'middle';
     x.fillText(k + '  –  ' + ((r && r.ifc.n) || d.name || ''), 16 * sc, band * 0.38);
     x.font = Math.round(15 * sc) + 'px Arial'; x.fillStyle = '#D9C9A8';
-    x.fillText('Jeddah Opera House · Level ' + (d.baseLevel || '') + ' · Part ' + partOf(k) + ' · ' + new Date().toLocaleDateString('en-GB'), 16 * sc, band * 0.76);
+    x.fillText('Jeddah Opera House · Level ' + (CURLV || d.baseLevel || '') + ' · Part ' + partOf(k) + ' · ' + new Date().toLocaleDateString('en-GB'), 16 * sc, band * 0.76);
     return o;
   }
   function planBlob(k) {
@@ -157,6 +171,7 @@
   function msg(t) { var e = document.getElementById('wa-msg'); if (e) e.textContent = t; }
 
   window.RoomPage = {
+    level: function () { return CURLV; },
     labelled: function (k) { return labelled(k); },
     added: function () { return ADDED.slice(); },
     clear: function () { ADDED = []; SNAP = null; },
