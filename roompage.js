@@ -32,7 +32,7 @@
   }
   function progAll() { try { return JSON.parse(localStorage.getItem('ope_prog') || '{}'); } catch (x) { return {}; } }
   function getProg(k, part) { if (window.Cloud && Cloud.prog && Cloud.prog(k)) return Cloud.prog(k)[part] || 0; if (window.RoomStatus && RoomStatus.prog(k) && RoomStatus.prog(k)[part] != null) return RoomStatus.prog(k)[part]; var a = progAll(); return (a[k] && a[k][part]) || 0; }
-  function partOf(k) { var p = k.charAt(0); return p === '4' ? '004' : p === '5' ? '005' : ROOMS[k] && ROOMS[k].zone || ''; }
+  function partOf(k) { var p = k.charAt(0); return /^[1-5]$/.test(p) ? '00' + p : ROOMS[k] && ROOMS[k].zone || ''; }
 
   /* ---------- routing: plans only ---------- */
   window.route = function () {

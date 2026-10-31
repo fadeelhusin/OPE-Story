@@ -8,7 +8,7 @@
     c = (c || '').trim(); var k = { A: 'ok', B: 'ok', C: 'ok', O: 'info', E: 'bad', D: 'bad', G: 'warn' }[c.charAt(0).toUpperCase()] || 'none';
     return '<span class="sbc ' + k + '">' + esc(c || '–') + '</span>';
   }
-  function partOf(k) { var p = k.charAt(0); return p === '4' ? '004' : p === '5' ? '005' : ''; }
+  function partOf(k) { var p = k.charAt(0); return /^[1-5]$/.test(p) ? '00' + p : ''; }
   function codeMeaning(c) { return { A: 'Approved', B: 'Approved', C: 'No objection', G: 'Approved with comments – resubmit', E: 'Revise & resubmit', D: 'Rejected', O: 'For information' }[(c || '').charAt(0).toUpperCase()] || 'Awaiting reply'; }
   /* progress source: cloud (Claude version) or this device */
   function prog(k) {
@@ -42,7 +42,7 @@
     h += '<div class="sbband"><div class="sbeye">Room status · Jeddah Opera House</div><h1>' + esc(k) + ' – ' + esc((r && r.ifc.n) || d.name || '') + '</h1>' +
       '<div class="sbmeta">Level ' + esc(d.baseLevel) + ' · Part ' + partOf(k) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + (r ? ' · ' + esc(r.sc) : '') + ' · ' + now + '</div></div>';
     h += '<section><h2>Location</h2>' + (snapUrl ? '<img class="sbplan" src="' + snapUrl + '" alt="Room ' + esc(k) + ' on the level plan">' : '<div class="frame sbplanlive" id="sbpv"><canvas></canvas><div class="mk"></div><div class="pvstat-el" id="pvstat">loading…</div></div>') + '</section>';
-    if (!r) return h + '<section class="sbna">Room not in the P4-P5 register.</section></div>';
+    if (!r) return h + '<section class="sbna">Room not in the finishes register.</section></div>';
     var rows = [finRow('Walls', 'w', r, p), finRow('Floor', 'f', r, p), finRow('Ceiling', 'c', r, p)];
     h += '<section><h2>Status</h2><div class="sbtbl"><table><thead><tr><th>Item</th><th>Requirement / code</th><th>Shop drawing &amp; JCDC code</th><th>MTS / approval</th><th>Site</th><th>Status / action</th></tr></thead><tbody>' +
       rows.map(function (x) { return x.html; }).join('') + '</tbody></table></div></section>';
@@ -62,7 +62,7 @@
     var acts = []; rows.forEach(function (x, i) { x.act.forEach(function (a) { acts.push(['Walls', 'Floor', 'Ceiling'][i] + ': ' + a); }); });
     h += '<section><h2>Open actions</h2>' + (acts.length ? '<ol class="sbacts">' + acts.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ol>' : '<div class="sbs">None.</div>') + '</section>';
     h += '<section id="sbai"></section>';
-    h += '<footer class="sbs">Sources: P4-P5 Finishes Register · IFC Room Finishes Schedule AR-010560 · Opera House_Archive (SharePoint) · ' + now + '</footer></div>';
+    h += '<footer class="sbs">Sources: JOH Finishes Register (Parts 001–005) · IFC Room Finishes Schedule AR-010560 · Opera House_Archive (SharePoint) · ' + now + '</footer></div>';
     return h;
   }
   var CSS = '.sb{display:flex;flex-direction:column;gap:22px;padding-bottom:30px;font-family:"IBM Plex Sans",Arial,sans-serif;color:#1E2A33}.sb a{color:#8A5F1E;font-weight:600}' +

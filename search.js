@@ -71,13 +71,13 @@
         }).join('') + '</div>';
     }).join('') || '<div class="small">No match.</div>';
   }
-  function types() { var t = {}; Object.keys(window.ROOMS || {}).forEach(function (k) { var p = k.split('.'); if (p[2] && /^[45]$/.test(p[0])) t[p[2]] = 1; }); return Object.keys(t).sort(); }
+  function types() { var t = {}; Object.keys(window.ROOMS || {}).forEach(function (k) { var p = k.split('.'); if (p[2]) t[p[2]] = 1; }); return Object.keys(t).sort(); }
   window.Search = {
     bar: function (level) {
       var lv = (window.LEVELS || ['00', '01', '02', '03', '04', '05', '06']).map(function (l) { return '<option value="' + l + '">L' + l + '</option>'; }).join('');
       return '<div class="gs-bar"><input id="gs-q" type="search" placeholder="🔍 Room, name, code, SD, MTS, door…" autocomplete="off">' +
         '<div class="gs-fl"><select id="gs-lv" aria-label="Level"><option value="">All levels</option>' + lv + '</select>' +
-        '<select id="gs-pt" aria-label="Part"><option value="">All parts</option><option value="4">Part 004</option><option value="5">Part 005</option></select>' +
+        '<select id="gs-pt" aria-label="Part"><option value="">All parts</option><option value="1">Part 001</option><option value="2">Part 002</option><option value="3">Part 003</option><option value="4">Part 004</option><option value="5">Part 005</option></select>' +
         '<select id="gs-ty" aria-label="Room type"><option value="">All rooms</option>' + types().map(function (t) { return '<option>' + t + '</option>'; }).join('') + '</select></div>' +
         '<div class="gs-act"><button id="gs-color" class="btn ghost" onclick="Search.paint()" disabled>🎨 Colour these rooms on the plans</button></div>' +
         '<div id="gs-chips" class="gs-chips" hidden></div>' +
