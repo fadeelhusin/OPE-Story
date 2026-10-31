@@ -49,7 +49,7 @@
 
   window.openPlanBrowse = function (level) {
     if (LEVELS.indexOf(level) < 0) level = LEVELS[0];
-    var h = '<div class="levelpicker">';
+    var h = '<button class="btn ghost rp-search" onclick="Search.open()">🔍 Search rooms, codes, SD, MTS, doors…</button><div class="levelpicker">';
     LEVELS.forEach(function (l) { h += '<button class="' + (l === level ? 'active' : '') + '" onclick="location.hash=\'#/plan/' + l + '\'">Level ' + l + '</button>'; });
     h += '</div>';
     h += '<div class="planwrap" id="pvb"><canvas></canvas><div class="dotlayer" style="position:absolute;inset:0;pointer-events:none"></div>' +
@@ -67,7 +67,7 @@
     var h = '<div class="rtop"><button class="btn ghost" onclick="location.hash=\'#/plan/' + esc(d.baseLevel) + '\'">←</button>' +
       '<div class="rhead"><div class="rn">' + esc(k) + '</div><div class="rt">' + esc((r && r.ifc.n) || d.name || '') + '</div>' +
       '<div class="small">Level ' + esc(d.baseLevel) + ' · Part ' + esc(partOf(k)) + (g ? ' · Grid ' + esc(g.text) : '') + (d.area ? ' · ' + d.area + ' m²' : '') + '</div></div>' +
-      '<div class="rp-topbtns"><button class="btn ghost rp-notebtn" onclick="Search.open()" aria-label="Search">🔍</button><button class="btn ghost rp-notebtn" onclick="RoomPage.openNote(\'' + esc(k) + '\')">Note</button>' +
+      '<div class="rp-topbtns"><button class="btn ghost rp-notebtn" onclick="RoomPage.openNote(\'' + esc(k) + '\')">Note</button>' +
       '<button class="btn brass rp-stbtn" onclick="location.hash=\'#/story/' + esc(k) + '\'">Status</button></div></div>';
     h += '<div class="hero small-hero rp-plan">';
     if (d.pos) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(d.baseLevel) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
