@@ -23,15 +23,27 @@ var Viewer = (function () {
 
   function setStat(s) { if (V.stat) V.stat.textContent = s; }
 
-  function openRoom(k, containerId, lv) {
+  function levelMarkers(level, skip) {
+    var out = [];
+    Object.keys(ROOMS).forEach(function (id) {
+      if (id === skip) return;
+      var r = ROOMS[id];
+      if (r.posL && r.posL[level]) out.push({ id: id, mx: r.posL[level][0] * V.vw, my: r.posL[level][1] * V.vh });
+      else if (r.baseLevel === level && r.pos) out.push({ id: id, mx: r.pos[1] * V.vw, my: r.pos[2] * V.vh });
+    });
+    return out;
+  }
+  function openRoom(k, containerId, lv, onPick) {
     var d = ROOMS[k]; if (!d) return;
     var at = lv && d.posL && d.posL[lv] ? [lv, d.posL[lv][0], d.posL[lv][1]] : d.pos; if (!at) return;
-    V.mode = 'room'; V.room = k; V.lvl = at[0]; V.tile = null; V.src = null; V.pdfPage = null; V.pdfCanvas = null; V.pdfScale = 0;
+    V.mode = 'room'; V.room = k; V.lvl = at[0]; V.onPick = onPick || null; V.addFn = null; V.tmp = null; V.tile = null; V.src = null; V.pdfPage = null; V.pdfCanvas = null; V.pdfScale = 0;
     var dim = META.dims[V.lvl];
     V.dpr = window.devicePixelRatio || 1;
     V.vw = 1191; V.vh = 842;
     var p = at; V.mx = p[1] * V.vw; V.my = p[2] * V.vh;
+    V.markers = onPick ? levelMarkers(V.lvl, k) : [];
     setupCanvas(containerId);
+    var dl = V.container.querySelector('.dotlayer'); if (dl) dl.innerHTML = '';
     V.maxScale = Math.min(Math.sqrt(14.0e6 / (V.vw * V.vh)), 4000 / V.vw, 4000 / V.vh);
     loadPng(V.lvl);
     bind();
@@ -183,6 +195,7 @@ var Viewer = (function () {
     if ((V.mode === 'room' || (V.mode === 'doc' && V.mx != null)) && V.mk) {
       V.mk.style.display = 'block';
       V.mk.style.left = (V.mx * V.viewScale + V.tx) + 'px'; V.mk.style.top = (V.my * V.viewScale + V.ty) + 'px';
+      if (V.mode === 'room' && V.markers.length) drawMarkerDots();
     } else if (V.mode === 'browse') {
       drawMarkerDots();
       var tm = V.container.querySelector('.mk.tmp');
@@ -292,7 +305,7 @@ var Viewer = (function () {
         if (ax >= 0 && ax <= 1 && ay >= 0 && ay <= 1) V.addFn(ax, ay);
         return;
       }
-      if (V.mode === 'browse' && !moved && V.onPick && downAt && Date.now() - downAt.t < 500) {
+      if ((V.mode === 'browse' || V.mode === 'room') && !moved && V.onPick && V.markers.length && downAt && Date.now() - downAt.t < 500) {
         var r = pv.getBoundingClientRect();
         var px = downAt.x - r.left, py = downAt.y - r.top;
         var vx = (px - V.tx) / V.viewScale, vy = (py - V.ty) / V.viewScale;
@@ -302,7 +315,7 @@ var Viewer = (function () {
           if (d < bestD) { bestD = d; best = m; }
         });
         var pickPx = bestD * V.viewScale;
-        if (best && pickPx < 46) V.onPick(best.id);
+        if (best && pickPx < (V.mode === 'room' ? 22 : 46)) V.onPick(best.id);
       }
     };
     pv.onpointerup = up; pv.onpointercancel = up;

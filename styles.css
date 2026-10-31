@@ -584,3 +584,7 @@ nav#tabbar[hidden]{display:none!important}
 .rp-tq-g{font-size:.78em;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a6d3b;margin:10px 2px 4px}
 .rp-tq-lv{font-size:.72em;background:#efe9dc;color:#5d4a26;border-radius:8px;padding:1px 6px}
 .rp-tq-other summary{cursor:pointer;font-size:.85em;margin:8px 2px}
+
+.dotlayer.mini .mkdot{transform:scale(.55);opacity:.8}
+.dotlayer.mini .mkdot:hover{transform:scale(.9);opacity:1}
+.dotlayer.mini .mkdot .hlfill{display:none}

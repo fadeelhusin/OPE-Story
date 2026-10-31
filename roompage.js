@@ -94,7 +94,7 @@
       '<div class="rp-topbtns"><button class="btn ghost rp-notebtn" onclick="RoomPage.openNote(\'' + esc(k) + '\')">Note</button>' +
       '<button class="btn brass rp-stbtn" onclick="location.hash=\'#/story/' + esc(k) + '\'">Status</button></div></div>';
     h += '<div class="hero small-hero rp-plan">';
-    if (d.pos || (d.posL && d.posL[lv])) h += '<div class="frame" id="pv"><canvas></canvas><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(lv) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
+    if (d.pos || (d.posL && d.posL[lv])) h += '<div class="frame" id="pv"><canvas></canvas><div class="dotlayer mini" style="position:absolute;inset:0"></div><div class="mk"></div><div id="pvlvl">LEVEL ' + esc(lv) + '</div><div class="pvstat-el" id="pvstat">loading…</div>' +
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
     else h += '<div class="frame rp-noloc">Location not yet mapped on the Level ' + esc(lv) + ' plan.</div>';
     h += '</div>';
@@ -135,7 +135,7 @@
     h += '<button class="btn ghost rp-status" onclick="location.hash=\'#/story/' + esc(k) + '\'">📊 Status – room storyboard</button>' +
       '<button class="btn ghost rp-status" style="margin-top:-14px" onclick="askClaude(\'' + esc(k) + '\')">Ask in the project chat</button>';
     app.innerHTML = h;
-    if (d.pos || (d.posL && d.posL[lv])) Viewer.openRoom(k, 'pv', lv);
+    if (d.pos || (d.posL && d.posL[lv])) Viewer.openRoom(k, 'pv', lv, function (id) { var r2 = ROOMS[id] || {}; location.hash = '#/room/' + encodeURIComponent(id) + (r2.baseLevel !== lv ? '/@' + lv : ''); });
     SNAP = null; ADDED = [];
     if (window.RoomStatus && !window.Cloud) RoomStatus.mount(k);
     try { localStorage.setItem('joh_cur_room', JSON.stringify({ id: k, t: Date.now() })); } catch (x) {}
