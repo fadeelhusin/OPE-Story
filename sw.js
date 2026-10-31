@@ -1,4 +1,4 @@
-const CACHE = 'ope-story-v28';
+const CACHE = 'ope-story-v29';
 const DWG_CACHE = 'joh-dwg-v1';
 const HD_CACHE = 'joh-hd-v1';
 const ASSETS = [
