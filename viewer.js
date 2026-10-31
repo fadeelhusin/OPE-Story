@@ -46,7 +46,8 @@ var Viewer = (function () {
     V.markers = [];
     Object.keys(ROOMS).forEach(function (id) {
       var r = ROOMS[id];
-      if (r.baseLevel === level && r.pos) {
+      if (r.posL && r.posL[level]) V.markers.push({ id: id, mx: r.posL[level][0] * V.vw, my: r.posL[level][1] * V.vh });
+      else if (r.baseLevel === level && r.pos) {
         V.markers.push({ id: id, mx: r.pos[1] * V.vw, my: r.pos[2] * V.vh });
       }
     });
