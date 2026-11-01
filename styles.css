@@ -590,3 +590,4 @@ nav#tabbar[hidden]{display:none!important}
 .dotlayer.mini .mkdot .hlfill{display:none}
 .rp-res{margin:8px 0 4px}.rp-res .hd-chips{margin:4px 0 0}
 .rp-ht{font-size:13px;color:#3b4652;background:#f3efe6;border-radius:8px;padding:6px 10px;margin:6px 0 4px}
+.hd-nav{display:flex;gap:8px;margin:2px 0 10px}.hd-nav .btn{flex:1;padding:10px 8px;font-size:14px}.hd-wrap{background:#000}

@@ -192,7 +192,7 @@ var Refs = (function () {
    device, offline, opening on the room when one is given.
    ============================================================ */
 var HD = (function () {
-  var CACHE = 'joh-hd-v2';
+  var CACHE = 'joh-hd-v3';
   var SETS = [
     { id: 'overall', name: 'Shafts tracker (coloured)', short: 'Shafts tracker', levels: ['00', '01', '02', '03', '04', '05', '06'] },
     { id: 'walls', name: 'Wall plans (IFC)', short: 'Walls', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] },
@@ -211,7 +211,10 @@ var HD = (function () {
   function page(set, level, room) {
     var S = setOf(set) || SETS[0]; if (S.levels.indexOf(level) < 0) level = S.levels.indexOf('00') >= 0 ? '00' : S.levels[0];
     var tail = room ? '/' + encodeURIComponent(room) : '';
-    var h = '<div class="seg hd-seg">' + SETS.map(function (s) { return '<button class="' + (s.id === S.id ? 'on' : '') + '" onclick="location.replace(\'#/hd/' + s.id + '/' + level + tail + '\')">' + e(s.short) + '</button>'; }).join('') + '</div>';
+    var back = room ? '#/room/' + encodeURIComponent(room) + '/@' + level : '#/plan/' + level;
+    var h = '<div class="hd-nav"><button class="btn ghost" onclick="location.hash=\'' + back + '\'">← ' + (room ? e(room) : 'Plan L' + e(level)) + '</button>' +
+      '<button class="btn ghost" onclick="location.hash=\'#/plan/' + level + '\'">Level plans</button></div>';
+    h += '<div class="seg hd-seg">' + SETS.map(function (s) { return '<button class="' + (s.id === S.id ? 'on' : '') + '" onclick="location.replace(\'#/hd/' + s.id + '/' + level + tail + '\')">' + e(s.short) + '</button>'; }).join('') + '</div>';
     h += '<div class="levelpicker">' + S.levels.map(function (l) { return '<button class="' + (l === level ? 'active' : '') + '" onclick="location.replace(\'#/hd/' + S.id + '/' + l + tail + '\')">L' + l + '</button>'; }).join('') + '</div>';
     h += '<div class="planwrap hd-wrap" id="hdv"><canvas></canvas><div class="mk"></div><div id="pvlvl">' + e(S.short.toUpperCase()) + ' · L' + e(level) + '</div><div class="pvstat-el" id="pvstat"></div>' +
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.5)">+</button><button onclick="Viewer.zoomBy(0.67)">−</button><button onclick="Viewer.fitPlan()">⤢</button></div></div>';
