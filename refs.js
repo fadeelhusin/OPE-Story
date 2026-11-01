@@ -200,7 +200,9 @@ var HD = (function () {
     { id: 'floors', name: 'Floor plans (IFC)', short: 'Floors', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] }
   ];
   function e(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function file(set, lv) { return 'plans-hd/' + set + '-' + lv + '.pdf'; }
+  function theme() { try { return localStorage.getItem('hd_theme') || 'dark'; } catch (x) { return 'dark'; } }
+  function setTheme(t) { try { localStorage.setItem('hd_theme', t); } catch (x) {} route(); }
+  function file(set, lv) { return 'plans-hd/' + (theme() === 'dark' ? 'dark/' : '') + set + '-' + lv + '.pdf'; }
   function setOf(id) { return SETS.filter(function (x) { return x.id === id; })[0]; }
   function chips(level, room) {
     return '<div class="hd-chips">' + SETS.map(function (s) {
@@ -213,10 +215,11 @@ var HD = (function () {
     var tail = room ? '/' + encodeURIComponent(room) : '';
     var back = room ? '#/room/' + encodeURIComponent(room) + '/@' + level : '#/plan/' + level;
     var h = '<div class="hd-nav"><button class="btn ghost" onclick="location.hash=\'' + back + '\'">← ' + (room ? e(room) : 'Plan L' + e(level)) + '</button>' +
-      '<button class="btn ghost" onclick="location.hash=\'#/plan/' + level + '\'">Level plans</button></div>';
+      '<button class="btn ghost" onclick="location.hash=\'#/plan/' + level + '\'">Level plans</button>' +
+      '<button class="btn ghost hd-theme" onclick="HD.setTheme(\'' + (theme() === 'dark' ? 'light' : 'dark') + '\')">' + (theme() === 'dark' ? '☀ White' : '☾ Black') + '</button></div>';
     h += '<div class="seg hd-seg">' + SETS.map(function (s) { return '<button class="' + (s.id === S.id ? 'on' : '') + '" onclick="location.replace(\'#/hd/' + s.id + '/' + level + tail + '\')">' + e(s.short) + '</button>'; }).join('') + '</div>';
     h += '<div class="levelpicker">' + S.levels.map(function (l) { return '<button class="' + (l === level ? 'active' : '') + '" onclick="location.replace(\'#/hd/' + S.id + '/' + l + tail + '\')">L' + l + '</button>'; }).join('') + '</div>';
-    h += '<div class="planwrap hd-wrap" id="hdv"><canvas></canvas><div class="mk"></div><div id="pvlvl">' + e(S.short.toUpperCase()) + ' · L' + e(level) + '</div><div class="pvstat-el" id="pvstat"></div>' +
+    h += '<div class="planwrap hd-wrap ' + theme() + '" id="hdv"><canvas></canvas><div class="mk"></div><div id="pvlvl">' + e(S.short.toUpperCase()) + ' · L' + e(level) + '</div><div class="pvstat-el" id="pvstat"></div>' +
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.5)">+</button><button onclick="Viewer.zoomBy(0.67)">−</button><button onclick="Viewer.fitPlan()">⤢</button></div></div>';
     h += '<div class="small" id="hd-note">' + (room ? 'Looking for <b>' + e(room) + '</b>…' : 'Pinch to zoom — the drawing stays sharp.') + '</div>';
     document.getElementById('app').innerHTML = h;
@@ -243,5 +246,5 @@ var HD = (function () {
     }).then(function () { btn.textContent = '✓ All HD drawings saved offline'; })
       .catch(function () { btn.disabled = false; btn.textContent = 'Retry — connection dropped'; });
   }
-  return { SETS: SETS, page: page, section: section, chips: chips, saveAll: saveAll };
+  return { SETS: SETS, setTheme: setTheme, page: page, section: section, chips: chips, saveAll: saveAll };
 })();
