@@ -588,3 +588,5 @@ nav#tabbar[hidden]{display:none!important}
 .dotlayer.mini .mkdot{transform:scale(.55);opacity:.8}
 .dotlayer.mini .mkdot:hover{transform:scale(.9);opacity:1}
 .dotlayer.mini .mkdot .hlfill{display:none}
+.rp-res{margin:8px 0 4px}.rp-res .hd-chips{margin:4px 0 0}
+.rp-ht{font-size:13px;color:#3b4652;background:#f3efe6;border-radius:8px;padding:6px 10px;margin:6px 0 4px}

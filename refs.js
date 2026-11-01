@@ -13,9 +13,9 @@
 var Refs = (function () {
   var CACHE = 'joh-dwg-v1', K_META = 'joh_dwg_meta';
   var LIST = [
-    { id: 'overall', name: 'Overall plan — coloured by scope', file: 'refs/JOH_Overall_Colored.dwg', note: 'Subcontractor scope colours (ZAK / MBL Marine / BAUMAT / ICONIC)', size: 87387344 },
-    { id: 'walls', name: 'Wall plans', file: 'refs/JOH_Wall_Plans.dwg', note: 'Wall types & finishes', size: 54947270 },
-    { id: 'ceilings', name: 'Ceiling plans', file: 'refs/JOH_Ceilings.dwg', note: 'Reflected ceiling plans', size: 72228590 },
+    { id: 'overall', name: 'Shafts tracker — coloured by scope', file: 'refs/JOH_Overall_Colored.dwg', note: 'Scope colours with shafts, risers and stairs, L00–L06', size: 87652735 },
+    { id: 'walls', name: 'Wall plans', file: 'refs/JOH_Wall_Plans.dwg', note: 'Wall types & finishes', size: 60866547 },
+    { id: 'ceilings', name: 'Ceiling plans', file: 'refs/JOH_Ceilings.dwg', note: 'Reflected ceiling plans', size: 87268776 },
     { id: 'floors', name: 'Floor plans', file: 'refs/JOH_Floors.dwg', note: 'Floor finishes', size: 51869827 }
   ];
   var busy = {}, IS_WIN = /Windows/.test(navigator.userAgent), LVL = '';
@@ -192,12 +192,12 @@ var Refs = (function () {
    device, offline, opening on the room when one is given.
    ============================================================ */
 var HD = (function () {
-  var CACHE = 'joh-hd-v1';
+  var CACHE = 'joh-hd-v2';
   var SETS = [
-    { id: 'overall', name: 'Scope (coloured)', short: 'Scope', levels: ['00', '01', '02', '03', '04', '05', '06'] },
-    { id: 'walls', name: 'Wall plans', short: 'Walls', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] },
-    { id: 'ceilings', name: 'Ceiling plans', short: 'Ceilings', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] },
-    { id: 'floors', name: 'Floor plans', short: 'Floors', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] }
+    { id: 'overall', name: 'Shafts tracker (coloured)', short: 'Shafts tracker', levels: ['00', '01', '02', '03', '04', '05', '06'] },
+    { id: 'walls', name: 'Wall plans (IFC)', short: 'Walls', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] },
+    { id: 'ceilings', name: 'Ceiling plans (IFC)', short: 'Ceilings', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] },
+    { id: 'floors', name: 'Floor plans (IFC)', short: 'Floors', levels: ['B2', 'B1', '00', '01', '02', '03', '04', '05', '06'] }
   ];
   function e(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function file(set, lv) { return 'plans-hd/' + set + '-' + lv + '.pdf'; }

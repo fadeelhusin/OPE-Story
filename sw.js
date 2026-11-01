@@ -1,6 +1,6 @@
-const CACHE = 'ope-story-v42';
+const CACHE = 'ope-story-v43';
 const DWG_CACHE = 'joh-dwg-v1';
-const HD_CACHE = 'joh-hd-v1';
+const HD_CACHE = 'joh-hd-v2';
 const ASSETS = [
   "./",
   "./index.html",
@@ -22,6 +22,7 @@ const ASSETS = [
   "./storyboard.js",
   "./photos.js",
   "./search.js",
+  "./heights.js",
   "./shafts.js",
   "./dots.js",
   "./roompage.js",

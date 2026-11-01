@@ -27,8 +27,23 @@
     if (other.length) h += '<details class="rp-tq-other"><summary>Other levels (' + other.length + ')</summary><div class="rp-list">' + other.map(function (x) { return tqCard(x, T); }).join('') + '</div></details>';
     return h;
   }
+  function mm(v) { return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function lvlTxt(v) { var a = Math.abs(v) / 1000; return (v < 0 ? '-' : '+') + a.toFixed(3); }
+  function htLine(k, part) {
+    var H = window.HEIGHTS_DATA && HEIGHTS_DATA[k]; if (!H) return '';
+    var d = H[CURLV] || {}, c = d.c || [], t = '';
+    if (part === 'c') t = c.length ? 'Ceiling height above FFL: <b>' + c.map(mm).join(' / ') + ' mm</b>' : '';
+    else if (part === 'w') t = c.length ? 'Wall height: <b>' + (c.length > 1 ? mm(c[0]) + ' – ' + mm(c[c.length - 1]) : mm(c[0])) + ' mm</b> from FFL up to the ceiling' : '';
+    else if (part === 'f') {
+      var a = [];
+      if (d.ffl != null) a.push('FFL <b>' + lvlTxt(d.ffl) + '</b>');
+      if (H.f && H.f.length) a.push('Thickness FFL to slab: <b>' + H.f.map(function (x) { return x[1] + ' mm</b> (' + esc(x[0]) + ')'; }).join(' · <b>'));
+      t = a.join(' · ');
+    }
+    return t ? '<div class="rp-ht">' + t + '</div>' : '';
+  }
   function finBlock(label, ifc, ids, k, part) {
-    var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span>' + (ifc ? (/^As similar function finishing/.test(ifc) ? '<span class="rp-sim">As similar function finishing</span><span class="small">' + esc(ifc.replace(/^As similar function finishing – /, '')) + '</span>' : /^TQ-/.test(ifc) ? '<span class="rp-tqsrc">' + esc(ifc) + '</span>' : '<span class="small">' + esc(ifc) + '</span>') : '') + '</div>';
+    var h = '<div class="card rp-fin"><div class="rp-fin-h"><span class="rp-fin-lab">' + esc(label) + '</span>' + (ifc ? (/^As similar function finishing/.test(ifc) ? '<span class="rp-sim">As similar function finishing</span><span class="small">' + esc(ifc.replace(/^As similar function finishing – /, '')) + '</span>' : /^TQ-/.test(ifc) ? '<span class="rp-tqsrc">' + esc(ifc) + '</span>' : '<span class="small">' + esc(ifc) + '</span>') : '') + '</div>' + htLine(k, part);
     (ids || []).forEach(function (id) {
       var f = LIB[id]; if (!f) return;
       h += '<div class="rp-sys"><div class="rp-sys-t"><b>' + esc(f.code) + '</b> ' + esc(f.t) + '</div>';
@@ -61,6 +76,7 @@
     if (window.showSearch) showSearch(false);
     if (parts[0] === 'room' && parts[1]) return openRoom(parts[1], parts[2] && parts[2].charAt(0) === '@' ? parts[2].slice(1) : null);
     if (parts[0] === 'story' && parts[1] && window.Storyboard) return Storyboard.open(parts[1]);
+    if (parts[0] === 'hd' && window.HD) return HD.page(parts[1], parts[2] || lastLvl(), parts[3] || '');
     var lv = parts[0] === 'plan' && parts[1] ? parts[1] : lastLvl();
     try { localStorage.setItem('joh_last_level', lv); } catch (x) {}
     openPlanBrowse(lv);
@@ -98,6 +114,7 @@
       '<div id="pvctl"><button onclick="Viewer.zoomBy(1.4)">+</button><button onclick="Viewer.zoomBy(0.72)">−</button><button onclick="Viewer.centerRoom()">◎</button></div></div>';
     else h += '<div class="frame rp-noloc">Location not yet mapped on the Level ' + esc(lv) + ' plan.</div>';
     h += '</div>';
+    if (window.HD) h += '<div class="rp-res"><span class="small">Drawings – opens on this room:</span>' + HD.chips(lv, d.custom ? '' : k) + '</div>';
 
     if (r) {
       h += '<div class="rp-scope"><span>Sub-contractor</span><b>' + esc(r.sc) + '</b></div>';
